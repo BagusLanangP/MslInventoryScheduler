@@ -22,7 +22,7 @@ class ScheduleController extends Controller
      */
     public function create()
     {
-        $dataApi = ApiLibur::all();
+        $dataApi = ApiLibur::pluck('name', 'date');
         return view('schedule.create', compact('dataApi'));
     }
 
