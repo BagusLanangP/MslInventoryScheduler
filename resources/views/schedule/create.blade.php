@@ -13,7 +13,7 @@
                 </div>
             @endif
     
-            <form action="" method="POST" class="space-y-4 mt-10">
+            <form action="{{ route('schedule.store') }}" method="POST" class="space-y-4 mt-10">
                 @csrf
     
                 <div>
@@ -28,12 +28,20 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Tambahkan Catatan Untuk Nanti</label>
-                    <input type="text" name="time" required class="w-full p-2 border rounded-lg">
+                    <input type="text" name="note" id="note" required class="w-full p-2 border rounded-lg">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Tanggal Reminder</label>
                     <input type="date" name="reminder_date" id="reminder_date" required class="w-full p-2 border rounded-lg">
+                </div>
+
+                <!-- Checkbox untuk pengulangan -->
+                <div class="flex items-center">
+                    <input type="hidden" name="berulang" value="0">
+                    <input type="checkbox" name="berulang" id="berulang" value="1" class="w-4 h-4">
+                    <label for="berulang" class="ml-2 text-sm text-gray-700">Jadikan Berulang?</label>
+
                 </div>
 
                 <!-- Daftar Hari Libur dari API (Awalnya Tersembunyi) -->

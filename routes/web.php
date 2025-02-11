@@ -20,3 +20,6 @@ Route::get('/schedule-create', [ScheduleController::class, 'create']);
 use App\Http\Controllers\EmailController;
 
 Route::get('/kirim-email', [EmailController::class, 'kirimEmail']);
+
+
+Route::post('/schedule/store', [ScheduleController::class, 'store'])->name('schedule.store');

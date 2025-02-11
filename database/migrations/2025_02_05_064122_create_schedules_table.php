@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->boolean('berulang')->default(false);
+            $table->string('note')->nullable();
             $table->date('date'); // Tanggal hari libur
+            $table->date('reminder_date'); // Tanggal pengingat
             $table->timestamps();
         });
     }

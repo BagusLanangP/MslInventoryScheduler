@@ -31,7 +31,28 @@ class ScheduleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // dd($request->all());
+        // Validasi input
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'note' => 'nullable|string|max:500',
+            'berulang' => 'required|in:0,1', // Ubah validasi agar menerima 0 atau 1
+            'reminder_date' => 'required|date|after_or_equal:date',
+        ]);
+
+        // Simpan data ke database
+        Schedule::create([
+            'name' => $request->name,
+            'date' => $request->date,
+            'note' => $request->note,
+            'berulang' => $request->berulang,
+            'reminder_date' => $request->reminder_date,
+        ]);
+
+        // Redirect dengan pesan sukses
+        return redirect()->back()->with('success', 'Schedule berhasil disimpan!');
+    
     }
 
     /**
