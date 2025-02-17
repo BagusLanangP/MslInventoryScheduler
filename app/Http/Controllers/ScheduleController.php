@@ -55,6 +55,15 @@ class ScheduleController extends Controller
     
     }
 
+    // public function toggleStatus($id)
+    // {
+    //     $schedule = Schedule::findOrFail($id);
+    //     $schedule->status = !$schedule->status; // Toggle status
+    //     $schedule->save();
+
+    //     return redirect()->back()->with('success', 'Schedule diperbarui!');
+    // }
+
     /**
      * Display the specified resource.
      */
@@ -82,8 +91,30 @@ class ScheduleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Schedule $schedule)
+    public function destroy($id)
     {
-        //
-    }
+        $schedule = Schedule::find($id);
+
+        if (!$schedule) {
+            return back()->with('error', 'Data tidak ditemukan.');
+        }
+
+        $schedule->delete();
+
+        return back()->with('success', 'Schedule berhasil dihapus.');
+        }
+
+    public function toggleStatus(Request $request, $id)
+{
+    $schedule = Schedule::findOrFail($id);
+    $schedule->status = !$schedule->status; // Toggle status
+    $schedule->save();
+
+    return response()->json([
+        'success' => true,
+        'status' => $schedule->status,
+        'id' => $schedule->id
+    ]);
+}
+
 }

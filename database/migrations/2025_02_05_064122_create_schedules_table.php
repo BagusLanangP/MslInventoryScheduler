@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->date('date'); // Tanggal hari libur
             $table->date('reminder_date'); // Tanggal pengingat
+            $table->boolean('status')->default(false); // false berarti belum selesai
             $table->timestamps();
         });
     }

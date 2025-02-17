@@ -10,7 +10,7 @@ class Schedule extends Model
         return $this->hasOne(apiLibur::class);
     }
 
-    protected $fillable = ['name', 'date', 'note', 'reminder_date', 'berulang'];
+    protected $fillable = ['name', 'date', 'note', 'reminder_date', 'berulang', 'status'];
 
     // public function customDates(){
     //     return $this->hasMany(CustomDate::class, 'schedule_id', 'id');

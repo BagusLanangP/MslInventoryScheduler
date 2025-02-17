@@ -23,3 +23,12 @@ Route::get('/kirim-email', [EmailController::class, 'kirimEmail']);
 
 
 Route::post('/schedule/store', [ScheduleController::class, 'store'])->name('schedule.store');
+
+
+Route::post('/schedule/{id}/toggle-status', [ScheduleController::class, 'toggleStatus'])->name('schedule.toggleStatus');
+
+Route::post('/schedule/{id}/toggle-status', [ScheduleController::class, 'toggleStatus'])->name('schedule.toggleStatus');
+
+Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
+
+Route::post('/kirim/email/{id}', [EmailController::class, 'kirimEmail']);
