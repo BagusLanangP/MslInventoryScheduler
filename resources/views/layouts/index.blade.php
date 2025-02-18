@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HarvestHub | @yield('tittle')</title>
+    <title>MSL | @yield('tittle')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100">
-    <nav class="bg-gray-100 p-4 px-10 flex justify-between items-center shadow-lg">
-            <div class="text-lg font-bold">MSL Shop</div>
+    <nav class="bg-[#00a86b] p-4 px-10 flex justify-between items-center shadow-lg text-white">
+            <div>
+              <img src="/img/logo.png" alt="Logo" class="h-10 w-auto">
+            </div>
             <button id="menu-toggle" class="md:hidden text-white focus:outline-none">
                 ☰
             </button>
-            <ul id="menu" class="hidden md:flex space-x-4">
+            <ul id="menu" class="hidden md:flex space-x-4 font-bold">
                 <li><a href="#" class="hover:underline">Home</a></li>
                 <li><a href="/schedule" class="hover:underline">Schedule</a></li>
                 <li><a href="#" class="hover:underline">Dashboard</a></li>

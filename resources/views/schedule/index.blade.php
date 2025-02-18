@@ -4,6 +4,12 @@
 @section('content')
 
 <div class="content p-10 ">
+    <div class="filter flex justify-end">
+        <div class="mb-4">
+            <button id="toggle-past" class="bg-red-500 text-white px-4 py-2 rounded-md">Event yang akan datang</button>
+        </div>
+    </div>
+    
     <table class="table-fixed border border-gray-300 w-full">
         <thead>
             <tr class="bg-blue-500 text-white">
@@ -17,31 +23,46 @@
         </thead>
         <tbody>
             @foreach ($dataSchedule as $schedule)
-                <tr>
+                <tr class="odd:bg-white even:bg-gray-100" >
                     <td class="border border-gray-400 px-4 py-2">{{ $loop->iteration }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->name }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->date }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->reminder_date }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->note }}</td>
-                    <td class="border border-gray-400 px-4 py-2">
-                        <input type="checkbox" 
-                        onchange="toggleStatus({{ $schedule->id }})"
-                        class="w-5 h-5 cursor-pointer me-2"
-                        {{ $schedule->status ? 'checked' : '' }}>
-                        <a href="/schedule/{{ $schedule->id }}/edit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Edit</a>
-                        <form action="{{ route('schedule.destroy', $schedule->id) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md"
-                                onclick="return confirm('Apakah Anda yakin ingin menghapus schedule ini?')">
-                                Delete
-                            </button>
-                        </form>
-                        <form action="/kirim/email/{{ $schedule->id }}"  method="POST" class="inline" class="bg-blue-500 text-white px-4 py-2 rounded-md">
-                            @csrf
-                            <button type="submit" class="bg-blue-300 text-white px-4 py-2 rounded-md">Kirim email</button>
-                        </form>
-
+                    <td class="border border-gray-400 px-4 py-2 ">
+                        <div class="flex justify-end items-center">
+                            <input type="checkbox" 
+                            onchange="toggleStatus({{ $schedule->id }})"
+                            class="w-5 h-5 cursor-pointer me-2"
+                            {{ $schedule->status ? 'checked' : '' }}>
+                            <form action="{{ route('schedule.destroy', $schedule->id) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" onclick="return confirm('Apakah Anda yakin ingin menghapus schedule ini?')" class="me-1 bg-blue-500 text-white rounded-sm p-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M16.5 3l3 3L7.5 18H4.5V15L16.5 3z"/>
+                                    </svg>
+                                </button>
+                            </form>
+                            
+                            <form action="{{ route('schedule.destroy', $schedule->id) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" onclick="return confirm('Apakah Anda yakin ingin menghapus schedule ini?')" class="p-1 text-white rounded-sm me-1 bg-red-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </form>
+                            <form action="/kirim/email/{{ $schedule->id }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="text-white rounded-sm bg-green-500 p-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="  w-7 h-7">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12L21.75 3l-9.75 9.75 9.75 9.75-19.5-9.75z"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             @endforeach
