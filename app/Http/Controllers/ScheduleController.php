@@ -75,9 +75,15 @@ class ScheduleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Schedule $schedule)
+    public function edit($id)
     {
-        //
+        $scheduleId = Schedule::find($id);
+        if (!$scheduleId) {
+            return back()->with('error', 'Data tidak ditemukan.');
+        }
+        $dataApi = ApiLibur::pluck('name', 'date');
+
+        return view('schedule.create', compact('scheduleId', 'dataApi'));
     }
 
     /**

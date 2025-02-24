@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSL | @yield('tittle')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
 </head>
-<body class="bg-gray-100">
-    <nav class="bg-[#00a86b] p-4 px-10 flex justify-between items-center shadow-lg text-white">
+<body class="bg-gray-100 font-[Poppins]">
+    <nav class="bg-[#00a86b] p-4 px-10 flex justify-between items-center shadow-lg text-white fixed top-0 left-0 w-full z-50">
             <div>
               <img src="/img/logo.png" alt="Logo" class="h-10 w-auto">
             </div>

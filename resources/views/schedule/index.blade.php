@@ -3,27 +3,27 @@
 @section('tittle', 'homepage')
 @section('content')
 
-<div class="content p-10 ">
-    <div class="filter flex justify-end">
-        <div class="mb-4">
-            <button id="toggle-past" class="bg-red-500 text-white px-4 py-2 rounded-md">Event yang akan datang</button>
-        </div>
+<div class="content mt-10 p-10 ">
+    <div class="mb-4 flex gap-2">
+        <button id="show-upcoming" class="bg-green-500 text-white px-4 py-2 rounded-md mt-2">Event yang Akan Datang</button>
+        <button id="show-finished" class="bg-red-500 text-white px-4 py-2 rounded-md mt-2">Event yang Sudah Selesai</button>
     </div>
+    
     
     <table class="table-fixed border border-gray-300 w-full">
         <thead>
             <tr class="bg-blue-500 text-white">
                 <th class="border border-gray-400 px-4 w-[4%] py-2">No</th>
                 <th class="border border-gray-400 px-4 w-[27%] py-2">Nama</th>
-                <th class="border border-gray-400 px-4 w-[7%] py-2">Tanggal</th>
-                <th class="border border-gray-400 px-4 w-[7%] py-2">Reminder</th>
+                <th class="border border-gray-400 px-4 w-[9%] py-2">Tanggal</th>
+                <th class="border border-gray-400 px-4 w-[9%] py-2">Reminder</th>
                 <th class="border border-gray-400 px-4 w-[35%] py-2">Catatan</th>
-                <th class="border border-gray-400 px-4 w-[20%] py-2">Action</th>
+                <th class="border border-gray-400 px-4 w-[16%] py-2">Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($dataSchedule as $schedule)
-                <tr class="odd:bg-white even:bg-gray-100" >
+                <tr class="odd:bg-white even:bg-gray-100"  data-status="{{ $schedule->status ? 'false' : 'true' }}" >
                     <td class="border border-gray-400 px-4 py-2">{{ $loop->iteration }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->name }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->date }}</td>
@@ -35,10 +35,10 @@
                             onchange="toggleStatus({{ $schedule->id }})"
                             class="w-5 h-5 cursor-pointer me-2"
                             {{ $schedule->status ? 'checked' : '' }}>
-                            <form action="{{ route('schedule.destroy', $schedule->id) }}" method="POST" class="inline">
+                            <form action="{{ route('schedule.edit', $schedule->id) }}" method="POST" class="inline">
                                 @csrf
-                                @method('DELETE')
-                                <button type="submit" onclick="return confirm('Apakah Anda yakin ingin menghapus schedule ini?')" class="me-1 bg-blue-500 text-white rounded-sm p-1">
+                                @method('GET')
+                                <button type="submit"  class="me-1 bg-blue-500 text-white rounded-sm p-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M16.5 3l3 3L7.5 18H4.5V15L16.5 3z"/>
                                     </svg>
@@ -114,6 +114,25 @@
             }
         });
     }
+
+
+    document.getElementById('show-upcoming').addEventListener('click', function () {
+        let rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            let status = row.getAttribute('data-status');
+            row.style.display = (status === 'false') ? '' : 'none'; // Tampilkan yang belum finish
+        });
+    });
+
+    document.getElementById('show-finished').addEventListener('click', function () {
+        let rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            let status = row.getAttribute('data-status');
+            row.style.display = (status === 'true') ? '' : 'none'; // Tampilkan yang sudah finish
+        });
+    });
 </script>
 
 

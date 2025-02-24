@@ -17,7 +17,7 @@ class EmailController extends Controller
         }
     
         $data = [
-            "nama" => $schedule->name,
+            "name" => $schedule->name,
             "catatan" => $schedule->note,
             "date" => $schedule->date,
             "reminder_date" => $schedule->reminder_date

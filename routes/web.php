@@ -32,3 +32,5 @@ Route::post('/schedule/{id}/toggle-status', [ScheduleController::class, 'toggleS
 Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
 
 Route::post('/kirim/email/{id}', [EmailController::class, 'kirimEmail']);
+
+Route::get('/schedule/{id}', [ScheduleController::class, 'edit'])->name('schedule.edit');

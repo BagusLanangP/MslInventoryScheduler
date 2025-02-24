@@ -3,7 +3,7 @@
 @section('title', 'homepage')
 
 @section('content')
-    <div class="content-mid flex justify-center">
+    <div class="content-mid flex justify-center mt-14">
         <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-lg mt-10">
             <h2 class="text-xl font-semibold text-center mb-4">Form Buat Schedule</h2>
     
