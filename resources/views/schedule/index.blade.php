@@ -34,16 +34,17 @@
                             <input type="checkbox" 
                             onchange="toggleStatus({{ $schedule->id }})"
                             class="w-5 h-5 cursor-pointer me-2"
-                            {{ $schedule->status ? 'checked' : '' }}>
-                            <form action="{{ route('schedule.edit', $schedule->id) }}" method="POST" class="inline">
+                            {{ $schedule->status ? 'false' : 'true' }}>
+                            <form action="{{ route('schedule.update', $schedule->id) }}" method="POST" class="inline">
                                 @csrf
-                                @method('GET')
-                                <button type="submit"  class="me-1 bg-blue-500 text-white rounded-sm p-1">
+                                @method('PUT') <!-- Wajib ada untuk update -->
+                                <button type="submit" class="me-1 bg-blue-500 text-white rounded-sm p-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M16.5 3l3 3L7.5 18H4.5V15L16.5 3z"/>
                                     </svg>
                                 </button>
                             </form>
+                            
                             
                             <form action="{{ route('schedule.destroy', $schedule->id) }}" method="POST" class="inline">
                                 @csrf

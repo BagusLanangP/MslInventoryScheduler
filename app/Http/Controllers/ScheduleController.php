@@ -77,22 +77,19 @@ class ScheduleController extends Controller
      */
     public function edit($id)
     {
-        $scheduleId = Schedule::find($id);
-        if (!$scheduleId) {
+        $schedule = Schedule::find($id);
+        if (!$schedule) {
             return back()->with('error', 'Data tidak ditemukan.');
         }
         $dataApi = ApiLibur::pluck('name', 'date');
 
-        return view('schedule.create', compact('scheduleId', 'dataApi'));
+        return view('schedule.create', compact('schedule', 'dataApi'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Schedule $schedule)
-    {
-        //
-    }
+    
 
     /**
      * Remove the specified resource from storage.
@@ -111,16 +108,28 @@ class ScheduleController extends Controller
         }
 
     public function toggleStatus(Request $request, $id)
-{
-    $schedule = Schedule::findOrFail($id);
-    $schedule->status = !$schedule->status; // Toggle status
-    $schedule->save();
+    {
+        $schedule = Schedule::findOrFail($id);
+        $schedule->status = !$schedule->status; // Toggle status
+        $schedule->save();
 
-    return response()->json([
-        'success' => true,
-        'status' => $schedule->status,
-        'id' => $schedule->id
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'status' => $schedule->status,
+            'id' => $schedule->id
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $schedule = Schedule::findOrFail($id);
+        
+        $dataApi = ApiLibur::pluck('name', 'date');
+
+        $schedule->update($request->only(['name', 'date', 'note', 'berulang', 'reminder_date']));
+
+        return view('schedule.create', compact('schedule', 'dataApi'));
+    }
+
 
 }
