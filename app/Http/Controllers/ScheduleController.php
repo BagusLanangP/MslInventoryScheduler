@@ -77,14 +77,12 @@ class ScheduleController extends Controller
      */
     public function edit($id)
     {
-        $schedule = Schedule::find($id);
-        if (!$schedule) {
-            return back()->with('error', 'Data tidak ditemukan.');
-        }
+        $schedule = Schedule::findOrFail($id);
         $dataApi = ApiLibur::pluck('name', 'date');
 
         return view('schedule.create', compact('schedule', 'dataApi'));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -122,14 +120,29 @@ class ScheduleController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Cari data berdasarkan ID
         $schedule = Schedule::findOrFail($id);
-        
-        $dataApi = ApiLibur::pluck('name', 'date');
 
-        $schedule->update($request->only(['name', 'date', 'note', 'berulang', 'reminder_date']));
+        // Validasi input
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'note' => 'nullable|string|max:500',
+            'berulang' => 'required|in:0,1',
+            'reminder_date' => 'required|date|after_or_equal:date',
+        ]);
 
-        return view('schedule.create', compact('schedule', 'dataApi'));
+        // Update data
+        $schedule->update([
+            'name' => $request->name,
+            'date' => $request->date,
+            'note' => $request->note,
+            'berulang' => $request->berulang,
+            'reminder_date' => $request->reminder_date,
+        ]);
+
+        // Redirect ke halaman index dengan pesan sukses
+        return redirect()->route('schedule.index')->with('success', 'Schedule berhasil diperbarui!');
     }
-
 
 }

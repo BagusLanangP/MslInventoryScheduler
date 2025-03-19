@@ -15,6 +15,7 @@ class EmailController extends Controller
         if (!$schedule) {
             return back()->with('error', 'Data tidak ditemukan.');
         }
+        $email = 'baguslanangpurbhawa@gmail.com';
     
         $data = [
             "name" => $schedule->name,
@@ -24,8 +25,10 @@ class EmailController extends Controller
         ];
     
 
-        Mail::to('baguslanangpurbhawa@gmail.com')->send(new NotifikasiEmail($data));
+        Mail::to($email)->send(new NotifikasiEmail($data));
 
-        return "Email berhasil dikirim!";
+          // Simpan pesan sukses dalam session
+         // Simpan pesan sukses dalam session dengan interpolasi string yang benar
+    return redirect()->back()->with('success', "Email berhasil dikirim ke $email");
     }
 }

@@ -3,13 +3,27 @@
 @section('tittle', 'homepage')
 @section('content')
 
-<div class="content mt-10 p-10 ">
-    <div class="mb-4 flex gap-2">
+<div class="content mt-10 p-10 pt-24">
+    {{-- BUG --}}
+    {{-- <div class="mb-4 flex gap-2">
         <button id="show-upcoming" class="bg-green-500 text-white px-4 py-2 rounded-md mt-2">Event yang Akan Datang</button>
         <button id="show-finished" class="bg-red-500 text-white px-4 py-2 rounded-md mt-2">Event yang Sudah Selesai</button>
     </div>
+     --}}
+     @if (session('success'))
+     <div id="alert-success" class="bg-green-500 text-white p-3 rounded-md mb-4 flex justify-between items-center">
+         <span>{{ session('success') }}</span>
+         <button onclick="closeAlert('alert-success')" class="text-white font-bold px-2">✖</button>
+     </div>
+    @endif
     
-    
+    @if (session('error'))
+        <div id="alert-error" class="bg-red-500 text-white p-3 rounded-md mb-4 flex justify-between items-center">
+            <span>{{ session('error') }}</span>
+            <button onclick="closeAlert('alert-error')" class="text-white font-bold px-2">✖</button>
+        </div>
+    @endif
+
     <table class="table-fixed border border-gray-300 w-full">
         <thead>
             <tr class="bg-blue-500 text-white">
@@ -34,16 +48,14 @@
                             <input type="checkbox" 
                             onchange="toggleStatus({{ $schedule->id }})"
                             class="w-5 h-5 cursor-pointer me-2"
-                            {{ $schedule->status ? 'false' : 'true' }}>
-                            <form action="{{ route('schedule.update', $schedule->id) }}" method="POST" class="inline">
-                                @csrf
-                                @method('PUT') <!-- Wajib ada untuk update -->
-                                <button type="submit" class="me-1 bg-blue-500 text-white rounded-sm p-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M16.5 3l3 3L7.5 18H4.5V15L16.5 3z"/>
-                                    </svg>
-                                </button>
-                            </form>
+                            {{ $schedule->status ? 'checked' : '' }}>
+
+                            <a href="{{ route('schedule.edit', $schedule->id) }}" class="me-1 bg-blue-500 text-white rounded-sm p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M16.5 3l3 3L7.5 18H4.5V15L16.5 3z"/>
+                                </svg>
+                            </a>
+                            
                             
                             
                             <form action="{{ route('schedule.destroy', $schedule->id) }}" method="POST" class="inline">
@@ -134,6 +146,15 @@
             row.style.display = (status === 'true') ? '' : 'none'; // Tampilkan yang sudah finish
         });
     });
+    function closeAlert(alertId) {
+        document.getElementById(alertId)?.remove();
+    }
+
+    // Auto-close setelah 3 detik
+    setTimeout(() => {
+        closeAlert('alert-success');
+        closeAlert('alert-error');
+    }, 3000);
 </script>
 
 

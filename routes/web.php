@@ -4,20 +4,37 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiLiburController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\AdminController;
+
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/create-user', [AdminController::class, 'createUser'])->name('admin.create-user');
+    Route::post('/store-user', [AdminController::class, 'storeUser'])->name('admin.store-user');
+    Route::get('/add-gmail', [AdminController::class, 'addGmail'])->name('admin.add-gmail');
+});
 
 Route::get('/', function () {
     return view('index');
 });
 
 
+
+
 Route::get('/fetcholidays', [ApiLiburController::class, 'fetchHolidays']);
 Route::get('/fetch', [ApiLiburController::class, 'index']);
 
-Route::get('/schedule', [ScheduleController::class, 'index']);
+Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
 
 Route::get('/schedule-create', [ScheduleController::class, 'create'])->name('schedule.create');
 
-use App\Http\Controllers\EmailController;
+
+// Route::get('/admin/dashboard', function () {
+//     return view('admin.createUser');
+// });
+
+
 
 Route::get('/kirim-email', [EmailController::class, 'kirimEmail']);
 
@@ -33,9 +50,10 @@ Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('s
 
 Route::post('/kirim/email/{id}', [EmailController::class, 'kirimEmail']);
 
-// Route::get('/schedule/{id}', [ScheduleController::class, 'edit'])->name('schedule.edit');
-
+Route::get('/schedule/{id}/edit', [ScheduleController::class, 'edit'])->name('schedule.edit');
 Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
+
+
 
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

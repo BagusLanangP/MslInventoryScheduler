@@ -14,6 +14,8 @@
                     {{ session('success') }}
                 </div>
             @endif
+
+            
     
             <form action="{{ isset($schedule) ? route('schedule.update', $schedule->id) : route('schedule.store') }}" method="POST" class="space-y-4 mt-10">
                 @csrf
