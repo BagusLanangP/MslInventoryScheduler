@@ -27,6 +27,12 @@ class AdminController extends Controller
         return view('admin.createUser');
     }
 
+    public function createSupplier()
+    {
+        return view('admin.createSupplier');
+    }
+
+
     public function addGmail()
     {
         return view('admin.addGmail');
