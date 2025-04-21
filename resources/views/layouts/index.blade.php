@@ -17,9 +17,9 @@
                 ☰
             </button>
             <ul id="menu" class="hidden md:flex space-x-4 font-bold">
-                <li><a href="#" class="hover:underline">Home</a></li>
+                <li><a href="/" class="hover:underline">Home</a></li>
                 <li><a href="/schedule" class="hover:underline">Schedule</a></li>
-                <li><a href="#" class="hover:underline">Dashboard</a></li>
+                <li><a href="/admin/dashboard" class="hover:underline">Dashboard</a></li>
                 <li><a href="#" class="hover:underline">Contact</a></li>
             </ul>
     </nav>

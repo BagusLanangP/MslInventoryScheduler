@@ -4,11 +4,12 @@
     </div>
     <nav class="flex-1 px-4 py-2">
         <a href="{{ route('admin.dashboard') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Dashboard</a>
-        <a href="{{ route('admin.create-user') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Create User</a>
-        <a href="{{ route('admin.create-supplier') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Create Supplier</a>
-        {{-- <a href="{{ route('admin.add-gmail') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Add Gmail</a> --}}
-        {{-- <a href="{{ route('admin.manage-posts') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Manage Posts</a>
-        <a href="{{ route('admin.settings') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Settings</a>
-        <a href="{{ route('logout') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Logout</a> --}}
+        <a href="{{ route('admin.create-user') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">User CRUD</a>
+        <a href="{{ route('admin.create-supplier') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Supplier CRUD</a>
+        <a href="{{ route('inventory_index') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Inventory CRUD</a>
     </nav>
 </div>
+
+
+
+

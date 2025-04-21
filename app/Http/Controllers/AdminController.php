@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Schedule;
 use App\Models\User;
 use App\Models\ApiLibur;
+use App\Models\InventoryChecking;
+use App\Models\Supplier;
+use App\Models\JenisBarang;
 use Illuminate\Support\Facades\Hash;
 
 
@@ -19,7 +22,10 @@ class AdminController extends Controller
         $completedSchedule = Schedule::where('status', 'completed')->count(); // Menghitung schedule yang selesai
         $userCount = User::count(); // Menghitung total user
         $dataApi = ApiLibur::pluck('name', 'date');
-        return view('admin.dashboard', compact('totalSchedule', 'completedSchedule', 'userCount', 'dataApi', 'users'));
+        $Inventory = InventoryChecking::count();
+        $supplier = Supplier::count(); 
+        // $InventoryProb = InventoryChecking::all();
+        return view('admin.dashboard', compact('totalSchedule', 'completedSchedule', 'userCount', 'dataApi', 'users', 'Inventory', 'supplier'));
     }
 
     public function createUser()

@@ -30,7 +30,7 @@ class SupplierController extends Controller
             'catatan' => 'nullable|string',
             'dari_tanggal' => 'required|date',
             'status_aktif' => 'boolean',
-            'jenis_barang_id' => 'required|exists:jenis_barangs,id'
+            'jenis_barang_id' => 'required'
         ]);
         Supplier::create([
             'nama' => $request->nama,
@@ -39,14 +39,14 @@ class SupplierController extends Controller
             'catatan' => $request->catatan,
             'dari_tanggal' => $request->dari_tanggal,
             'status_aktif' => true,
-            'jenis_barang_id' => 1,
+            'jenis_barang_id' => $request->jenis_barang_id,
         ]);
 
         
 
         // Supplier::create($validated);
 
-        return redirect()->route('suppliers.index')->with('success', 'Supplier berhasil ditambahkan');
+        return redirect()->route('admin.dashboard')->with('success', 'Supplier berhasil ditambahkan');
     }
 
     public function show(Supplier $supplier)

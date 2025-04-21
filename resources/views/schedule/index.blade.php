@@ -10,7 +10,7 @@
         <button id="show-finished" class="bg-red-500 text-white px-4 py-2 rounded-md mt-2">Event yang Sudah Selesai</button>
     </div>
      --}}
-     @if (session('success'))
+    @if (session('success'))
      <div id="alert-success" class="bg-green-500 text-white p-3 rounded-md mb-4 flex justify-between items-center">
          <span>{{ session('success') }}</span>
          <button onclick="closeAlert('alert-success')" class="text-white font-bold px-2">✖</button>

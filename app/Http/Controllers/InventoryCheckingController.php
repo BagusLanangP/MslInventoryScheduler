@@ -3,19 +3,42 @@
 // app/Http/Controllers/InventoryCheckingController.php
 
 namespace App\Http\Controllers;
-
 use App\Models\InventoryChecking;
 use App\Models\JenisBarang;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+
 
 class InventoryCheckingController extends Controller
 {
     // Tampilkan semua data
-    public function index()
+    public function index(Request $request)
     {
-        $data = InventoryChecking::with(['jenisBarang', 'supplier'])->get();
-        return view('inventory_checkings.index', compact('data'));
+        $query = InventoryChecking::with(['supplier', 'jenisBarang']);
+
+        // Filter berdasarkan supplier
+        if ($request->filled('supplier')) {
+            $query->where('supplier_id', $request->supplier);
+        }
+
+        // Filter berdasarkan jenis barang
+        if ($request->filled('jenis')) {
+            $query->where('jenis_barang_id', $request->jenis); // ✅ Benar
+        }
+        
+
+        // Filter expiring
+        if ($request->filter === 'exp-soon') {
+            $query->whereDate('expired_date', '<=', Carbon::now()->addMonth());
+        }
+
+        $data = $query->get();
+
+        // Ambil data untuk dropdown
+        $suppliers = Supplier::all();
+        $jenisBarang = JenisBarang::all();
+        return view('admin.inventory.index', compact('data', 'suppliers', 'jenisBarang'));
     }
 
     // Tampilkan form create
@@ -56,8 +79,12 @@ class InventoryCheckingController extends Controller
         $item = InventoryChecking::findOrFail($id);
         $jenisBarangs = JenisBarang::all();
         $suppliers = Supplier::all();
-        return view('inventory_checkings.edit', compact('item', 'jenisBarangs', 'suppliers'));
+        return view('admin.inventory.edit', compact('item', 'jenisBarangs', 'suppliers'));
     }
+
+
+
+    
 
     // Update data
     public function update(Request $request, $id)

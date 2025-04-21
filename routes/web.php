@@ -14,14 +14,32 @@ use App\Http\Controllers\InventoryCheckingController;
 
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
+    //dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    // User
     Route::get('/create-user', [AdminController::class, 'createUser'])->name('admin.create-user');
     Route::post('/store-user', [AdminController::class, 'storeUser'])->name('admin.store-user');
     Route::get('/add-gmail', [AdminController::class, 'addGmail'])->name('admin.add-gmail');
+   
+    
+    // Inventory
+    Route::get('/inventory', [InventoryCheckingController::class, 'index'])->name('inventory_index');
+    Route::get('/inventory-checkings/create', [InventoryCheckingController::class, 'create'])->name('inventory_checkings.create');
+    Route::get('/inventory/edit/{id}', [InventoryCheckingController::class, 'edit'])->name('inventory.edit');
+    Route::post('/store-inventory', [InventoryCheckingController::class, 'store'])->name('admin.store-inventory');
+    Route::delete('/inventory/delete/{id}', [InventoryCheckingController::class, 'destroy'])->name('inventory.destroy');
+
+    // Supplier
+    Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier_index');
     Route::get('/create-supplier', [SupplierController::class, 'create'])->name('admin.create-supplier');
     Route::post('/store-supplier', [SupplierController::class, 'store'])->name('admin.store-supplier');
-    Route::get('/inventory-checkings/create', [InventoryCheckingController::class, 'create'])->name('inventory_checkings.create');
-    Route::post('/store-inventory', [InventoryCheckingController::class, 'store'])->name('admin.store-inventory');
+   
+   
+
+    // <a href="{{ route('admin.create-inventory') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Create Supplier</a>
+    // <a href="{{ route('admin.create-jenis-barang') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Create Jenis Barang</a>
+    // <a href="{{ route('admin.create-inventory') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Create Inventory</a>
 });
 
 Route::get('/', function () {

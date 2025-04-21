@@ -16,6 +16,18 @@
             <h2 class="text-lg font-semibold">Messages</h2>
             <p class="text-gray-600">Total: 30</p>
         </div>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-semibold">jenis Barang</h2>
+            <p class="text-gray-600">Total: </p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-semibold">Supplier</h2>
+            <p class="text-gray-600">Total: {{ $supplier }}</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <h2 class="text-lg font-semibold">Inventory</h2>
+            <p class="text-gray-600">Total: {{ $Inventory}}</p>
+        </div>
     </div>
 
 

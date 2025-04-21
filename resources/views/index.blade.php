@@ -12,7 +12,7 @@
     <!-- Konten lainnya -->
     
     
-    <section class="relative mt-14 max-w-4xl mx-auto p-14   rounded-lg shadow-md px-4">
+    <section class="relative mt-14 mb-14 max-w-4xl mx-auto p-14   rounded-lg shadow-md px-4">
 
         <div class="mt-14 bg-white bg-opacity-30 backdrop-blur-lg p-4 rounded-lg">
             <div class="flex justify-center">
@@ -47,6 +47,21 @@
         
         
     </section>
+
+    <section class="relative mt-20 max-w-4xl mx-auto p-14 bg-white bg-opacity-30 backdrop-blur-lg rounded-lg shadow-md px-4">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center text-white">Statistik Sistem</h2>  
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-center text-white">
+            <div class="bg-blue-500 bg-opacity-70 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold">Total Supplier</h3>
+                <p class="text-3xl mt-2"></p>
+            </div>
+            <div class="bg-green-500 bg-opacity-70 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold">Total Inventory</h3>
+                <p class="text-3xl mt-2"></p>
+            </div>
+        </div>
+    </section>
+    
 </div>
 
     </div>
