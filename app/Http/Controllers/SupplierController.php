@@ -6,12 +6,22 @@ use App\Models\Supplier;
 use Illuminate\Http\Request;
 use App\Models\JenisBarang;
 
+
 class SupplierController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = Supplier::latest()->get();
-        return view('admin.createSupplier', compact('suppliers'));
+        $query = Supplier::with(['JenisBarangs']);
+
+        
+        if ($request->filled('jenis')) {
+            $query->where('jenis_barang_id', $request->jenis); // ✅ Benar
+        }
+
+        $data = $query->get();
+        $JenisBarangs = JenisBarang::all();
+        $suppliers = Supplier::with(['JenisBarangs'])->get();
+        return view('admin.Supplier.index', compact('suppliers', 'data', 'JenisBarangs'));
     }
 
     public function create()
@@ -51,7 +61,7 @@ class SupplierController extends Controller
 
     public function show(Supplier $supplier)
     {
-        return view('suppliers.show', compact('supplier'));
+        // return view('suppliers.show', compact('supplier'));
     }
 
     public function edit(Supplier $supplier)
@@ -75,6 +85,15 @@ class SupplierController extends Controller
 
         return redirect()->route('suppliers.show', $supplier)->with('success', 'Supplier berhasil diperbarui');
     }
+    public function toggleStatus($id)
+    {
+        $supplier = Supplier::findOrFail($id);
+        $supplier->status_aktif = !$supplier->status;
+        $supplier->save();
+
+        return redirect()->back()->with('success', 'Status supplier berhasil diperbarui.');
+    }
+
 
     public function destroy(Supplier $supplier)
     {

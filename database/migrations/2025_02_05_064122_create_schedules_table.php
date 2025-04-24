@@ -17,6 +17,7 @@ return new class extends Migration
             $table->boolean('berulang')->default(false);
             $table->string('note')->nullable();
             $table->date('date'); // Tanggal hari libur
+            $table->decimal('budget', 15, 2)->nullable();
             $table->date('reminder_date'); // Tanggal pengingat
             $table->boolean('status')->default(false); // false berarti belum selesai
             $table->timestamps();

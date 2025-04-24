@@ -34,7 +34,11 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier_index');
     Route::get('/create-supplier', [SupplierController::class, 'create'])->name('admin.create-supplier');
     Route::post('/store-supplier', [SupplierController::class, 'store'])->name('admin.store-supplier');
-   
+    Route::get('/supplier/edit/{id}', [SupplierController::class, 'edit'])->name('supplier.edit');
+    Route::get('/supplier/show/{id}', [SupplierController::class, 'show'])->name('supplier.show');
+    Route::put('/supplier/update/{id}', [SupplierController::class, 'update'])->name('supplier.update');
+    Route::patch('/supplier/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('supplier.toggleStatus');
+    Route::delete('/supplier/delete/{id}', [SupplierController::class, 'destroy'])->name('supplier.destroy');
    
 
     // <a href="{{ route('admin.create-inventory') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Create Supplier</a>
