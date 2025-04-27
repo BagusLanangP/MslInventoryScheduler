@@ -10,22 +10,25 @@ use App\Models\InventoryChecking;
 use App\Models\Supplier;
 use App\Models\JenisBarang;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
     public function dashboard()
     {
+        $expiredSoon = InventoryChecking::whereDate('expired_date', '<=', now()->addDays(7))->get();
         $dataSchedule = Schedule::all();
         $totalSchedule = Schedule::count(); 
         $users = User::all();
+        $jenisBarangs = JenisBarang::count();
         $completedSchedule = Schedule::where('status', 'completed')->count(); // Menghitung schedule yang selesai
         $userCount = User::count(); // Menghitung total user
         $dataApi = ApiLibur::pluck('name', 'date');
         $Inventory = InventoryChecking::count();
         $supplier = Supplier::count(); 
         // $InventoryProb = InventoryChecking::all();
-        return view('admin.dashboard', compact('totalSchedule', 'completedSchedule', 'userCount', 'dataApi', 'users', 'Inventory', 'supplier'));
+        return view('admin.dashboard', compact('totalSchedule', 'completedSchedule', 'userCount', 'dataApi', 'users', 'Inventory', 'supplier', 'expiredSoon', 'jenisBarangs' ));
     }
 
     public function createUser()

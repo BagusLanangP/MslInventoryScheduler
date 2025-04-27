@@ -21,9 +21,11 @@ return new class extends Migration
             $table->date('tanggal');
             $table->date('expired_date')->nullable();
             $table->integer('jumlah');
+            $table->integer('jenis_satuan');//biji, pcs, dll
+            $table->integer('isi_persatuan');//isi per satuannya, nullable, jika biji maka tidak ada
             $table->integer('harga');
-            $table->integer('total_harga');
-            $table->string('satuan');
+            $table->integer('harga_satuan');
+            $table->string('harga_jual');
             $table->string('keterangan')->nullable();
             $table->string('status')->default('belum_diproses');
             $table->timestamps();
