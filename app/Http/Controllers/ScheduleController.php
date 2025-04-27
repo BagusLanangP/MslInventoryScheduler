@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Schedule;
 use App\Models\ApiLibur;
 use Illuminate\Http\Request;
+use App\Models\JenisSchedule;
 
 class ScheduleController extends Controller
 {
@@ -13,8 +14,17 @@ class ScheduleController extends Controller
      */
     public function index()
     {
+        $query = Schedule::with(['jenisSchedule']);
+
+        
+        if ($request->filled('jenis')) {
+            $query->where('jenis_barang_id', $request->jenis); // ✅ Benar
+        }
+
+        $data = $query->get();
+        $jenisSchedule = JenisSchedule::all();
         $dataSchedule = Schedule::all();
-        return view('schedule.index', compact('dataSchedule'));
+        return view('schedule.index', compact('dataSchedule', 'jenisSchedule'));
     }
 
     /**
@@ -22,8 +32,9 @@ class ScheduleController extends Controller
      */
     public function create()
     {
+        $jenisSchedules = JenisSchedule::all();
         $dataApi = ApiLibur::pluck('name', 'date');
-        return view('schedule.create', compact('dataApi'));
+        return view('schedule.create', compact('dataApi', 'jenisSchedules'));
     }
 
     /**

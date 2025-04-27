@@ -9,9 +9,24 @@ use App\Models\JenisBarang;
 
 class SupplierController extends Controller
 {
+    // public function index(Request $request) 
+    // {
+    //     $query = Supplier::with('jenisBarang'); // Perbaiki nama relasi!
+
+    //     if ($request->filled('jenis')) {
+    //         $query->where('jenis_barang_id', $request->jenis);
+    //     }
+    //     // $data = $query->get();
+    //     $data = $query->get(); // satu query saja
+    //     $JenisBarangs = JenisBarang::all(); // untuk isi dropdown filter
+    //     dd($JenisBarangs);
+
+    //     return view('admin.Supplier.index', compact('data', 'JenisBarangs'));
+    // }
+
     public function index(Request $request)
     {
-        $query = Supplier::with(['JenisBarangs']);
+        $query = Supplier::with(['jenisBarang']);
 
         
         if ($request->filled('jenis')) {
@@ -20,7 +35,7 @@ class SupplierController extends Controller
 
         $data = $query->get();
         $JenisBarangs = JenisBarang::all();
-        $suppliers = Supplier::with(['JenisBarangs'])->get();
+        $suppliers = Supplier::with(['jenisBarang'])->get();
         return view('admin.Supplier.index', compact('suppliers', 'data', 'JenisBarangs'));
     }
 

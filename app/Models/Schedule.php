@@ -10,6 +10,10 @@ class Schedule extends Model
         return $this->hasOne(apiLibur::class);
         
     }
+    public function jenisSchedule()
+    {
+        return $this->belongsTo(jenisSchedule::class);
+    }
 
     protected $fillable = ['name', 'date', 'note', 'reminder_date', 'berulang', 'status'];
 

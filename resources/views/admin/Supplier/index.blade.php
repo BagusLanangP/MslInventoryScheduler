@@ -15,17 +15,6 @@ $table->foreign('jenis_barang_id')->references('id')->on('jenis_barangs')->onDel
 $table->timestamps(); --}}
 
 <form method="GET" action="{{ route('supplier_index') }}" class="mb-4 flex gap-4 items-end">
-    {{-- <div>
-        <label for="supplier">Supplier</label>
-        <select name="supplier" id="supplier" class="border rounded px-3 py-2">
-            <option value="">-- Semua Supplier --</option>
-            @foreach($suppliers as $supplier)
-                <option value="{{ $supplier->id }}" {{ request('supplier') == $supplier->id ? 'selected' : '' }}>
-                    {{ $supplier->nama }}
-                </option>
-            @endforeach
-        </select>
-    </div> --}}
 
     <div>
         <label for="jenis">Jenis Barang</label>
@@ -33,19 +22,12 @@ $table->timestamps(); --}}
             <option value="">-- Semua Jenis --</option>
             @foreach($JenisBarangs as $jenis)
                 <option value="{{ $jenis->id }}" {{ request('jenis') == $jenis->id ? 'selected' : '' }}>
-                    {{ $jenis->nama }}
+                    {{ $jenis->name }}
                 </option>
             @endforeach
         </select>
     </div>
 
-    <div>
-        <label for="filter">Expiring</label>
-        <select name="filter" id="filter" class="border rounded px-3 py-2">
-            <option value="">Semua</option>
-            <option value="exp-soon" {{ request('filter') == 'exp-soon' ? 'selected' : '' }}>Kurang dari 1 Bulan</option>
-        </select>
-    </div>
 
     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
 </form>
@@ -61,7 +43,7 @@ $table->timestamps(); --}}
         </tr>
     </thead>
     <tbody>
-        @foreach ($suppliers as $s)
+        @foreach ($data as $s)
         {{-- @php
             $isExpSoon = \Carbon\Carbon::parse($s->expired_date)->lessThanOrEqualTo(now()->addMonth());
         @endphp --}}
@@ -69,7 +51,7 @@ $table->timestamps(); --}}
                 <td class="border border-gray-400 px-4 py-2">{{ $loop->iteration }}</td>
                 <td class="border border-gray-400 px-4 py-2">{{ $s->nama }}</td>
                 <td class="border border-gray-400 px-4 py-2">
-                    {{ $s->jenisBarangs->name ?? 'Tidak Ada Jenis' }}
+                    {{ $s->jenisBarang->name ?? 'Tidak Ada Jenis' }}
                 </td>
                 <td class="border border-gray-400 px-4 py-2">{{ $s->dari_tanggal}}</td>
                 <td class="border border-gray-400 px-4 py-2">{{ $s->catatan }}</td>

@@ -19,7 +19,7 @@ class Supplier extends Model
         'jenis_barang_id'
     ];
 
-    public function jenisBarangs()
+    public function jenisBarang()
     {
         return $this->belongsTo(JenisBarang::class);
     }

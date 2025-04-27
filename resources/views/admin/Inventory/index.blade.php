@@ -24,7 +24,7 @@
             <option value="">-- Semua Jenis --</option>
             @foreach($jenisBarang as $jenis)
                 <option value="{{ $jenis->id }}" {{ request('jenis') == $jenis->id ? 'selected' : '' }}>
-                    {{ $jenis->nama }}
+                    {{ $jenis->name }}
                 </option>
             @endforeach
         </select>

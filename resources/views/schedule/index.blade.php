@@ -10,6 +10,37 @@
         <button id="show-finished" class="bg-red-500 text-white px-4 py-2 rounded-md mt-2">Event yang Sudah Selesai</button>
     </div>
      --}}
+     <form method="GET" action="{{ route('supplier_index') }}" class="mb-4 flex gap-4 items-end">
+    
+        <div>
+            <label for="jenis">Jenis Schedule</label>
+            <select name="jenis" id="jenis" class="border rounded px-3 py-2">
+                <option value="">-- Semua Jenis --</option>
+                @foreach($
+                
+                
+                
+                
+                
+                
+                as $jenis)
+                    <option value="{{ $jenis->id }}" {{ request('jenis') == $jenis->id ? 'selected' : '' }}>
+                        {{ $jenis->nama }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    
+        <div>
+            <label for="filter">Expiring</label>
+            <select name="filter" id="filter" class="border rounded px-3 py-2">
+                <option value="">Semua</option>
+                <option value="exp-soon" {{ request('filter') == 'exp-soon' ? 'selected' : '' }}>Kurang dari 1 Bulan</option>
+            </select>
+        </div>
+    
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
+    </form>
     @if (session('success'))
      <div id="alert-success" class="bg-green-500 text-white p-3 rounded-md mb-4 flex justify-between items-center">
          <span>{{ session('success') }}</span>
@@ -27,12 +58,13 @@
     <table class="table-fixed border border-gray-300 w-full">
         <thead>
             <tr class="bg-blue-500 text-white">
-                <th class="border border-gray-400 px-4 w-[4%] py-2">No</th>
-                <th class="border border-gray-400 px-4 w-[27%] py-2">Nama</th>
-                <th class="border border-gray-400 px-4 w-[9%] py-2">Tanggal</th>
-                <th class="border border-gray-400 px-4 w-[9%] py-2">Reminder</th>
-                <th class="border border-gray-400 px-4 w-[35%] py-2">Catatan</th>
-                <th class="border border-gray-400 px-4 w-[16%] py-2">Action</th>
+                <th class="border border-gray-400 px-4 w-[3%] py-2">No</th>
+                <th class="border border-gray-400 px-4 w-[24%] py-2">Nama</th>
+                <th class="border border-gray-400 px-4 w-[9%] py-2">Jenis</th>
+                <th class="border border-gray-400 px-4 w-[9%] py-2">Date</th>
+                <th class="border border-gray-400 px-4 w-[11%] py-2">Budget</th>
+                <th class="border border-gray-400 px-4 w-[32%] py-2">Catatan</th>
+                <th class="border border-gray-400 px-4 w-[12%] py-2">Action</th>
             </tr>
         </thead>
         <tbody>
@@ -40,8 +72,9 @@
                 <tr class="odd:bg-white even:bg-gray-100"  data-status="{{ $schedule->status ? 'false' : 'true' }}" >
                     <td class="border border-gray-400 px-4 py-2">{{ $loop->iteration }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->name }}</td>
-                    <td class="border border-gray-400 px-4 py-2">{{ $schedule->date }}</td>
+                    <td class="border border-gray-400 px-4 py-2">{{ $schedule->jenisSchedule->nama }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->reminder_date }}</td>
+                    <td class="border border-gray-400 px-4 py-2">{{ $schedule->budget }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->note }}</td>
                     <td class="border border-gray-400 px-4 py-2 ">
                         <div class="flex justify-end items-center">
