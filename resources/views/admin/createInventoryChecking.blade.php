@@ -77,15 +77,21 @@
             <p class="text-red-500 text-sm">{{ $message }}</p>
         @enderror
 
-        <label class="block mb-2 font-semibold">Harga per Satuan:</label>
-        <input type="number" name="harga" class="w-full border p-2 rounded @error('harga') border-red-500 @enderror" value="{{ old('harga') }}">
-        @error('harga')
+        <label class="block mb-2 font-semibold">Total Harga:</label>
+        <input type="number" name="total_harga" class="w-full border p-2 rounded @error('total_harga') border-red-500 @enderror" value="{{ old('total_harga') }}">
+        @error('total_harga')
             <p class="text-red-500 text-sm">{{ $message }}</p>
         @enderror
 
-        <label class="block mb-2 font-semibold">Satuan:</label>
-        <input type="text" name="satuan" class="w-full border p-2 rounded @error('satuan') border-red-500 @enderror" value="{{ old('satuan') }}">
-        @error('satuan')
+        <label class="block mb-2 font-semibold">Harga Pokok:</label>
+        <input type="number" name="harga_pokok" class="w-full border p-2 rounded @error('harga_pokok') border-red-500 @enderror" value="{{ old('harga_pokok') }}">
+        @error('harga_pokok')
+            <p class="text-red-500 text-sm">{{ $message }}</p>
+        @enderror
+
+        <label class="block mb-2 font-semibold">Harga Jual:</label>
+        <input type="number" name="harga_jual" class="w-full border p-2 rounded @error('harga_jual') border-red-500 @enderror" value="{{ old('harga_jual') }}">
+        @error('harga_jual')
             <p class="text-red-500 text-sm">{{ $message }}</p>
         @enderror
 

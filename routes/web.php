@@ -39,11 +39,19 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::put('/supplier/update/{id}', [SupplierController::class, 'update'])->name('supplier.update');
     Route::patch('/supplier/{id}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('supplier.toggleStatus');
     Route::delete('/supplier/delete/{id}', [SupplierController::class, 'destroy'])->name('supplier.destroy');
-   
 
-    // <a href="{{ route('admin.create-inventory') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Create Supplier</a>
-    // <a href="{{ route('admin.create-jenis-barang') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Create Jenis Barang</a>
-    // <a href="{{ route('admin.create-inventory') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Create Inventory</a>
+
+    //Schedule
+    Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
+    Route::get('/schedule-create', [ScheduleController::class, 'create'])->name('schedule.create');
+    Route::post('/schedule/store', [ScheduleController::class, 'store'])->name('schedule.store');
+    Route::post('/schedule/{id}/toggle-status', [ScheduleController::class, 'toggleStatus'])->name('schedule.toggleStatus');
+    Route::post('/schedule/{id}/toggle-status', [ScheduleController::class, 'toggleStatus'])->name('schedule.toggleStatus');
+    Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
+    Route::post('/kirim/email/{id}', [EmailController::class, 'kirimEmail']);
+    Route::get('/schedule/{id}/edit', [ScheduleController::class, 'edit'])->name('schedule.edit');
+    Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
+
 });
 
 Route::get('/', function () {
@@ -70,19 +78,7 @@ Route::get('/schedule-create', [ScheduleController::class, 'create'])->name('sch
 Route::get('/kirim-email', [EmailController::class, 'kirimEmail']);
 
 
-Route::post('/schedule/store', [ScheduleController::class, 'store'])->name('schedule.store');
 
-
-Route::post('/schedule/{id}/toggle-status', [ScheduleController::class, 'toggleStatus'])->name('schedule.toggleStatus');
-
-Route::post('/schedule/{id}/toggle-status', [ScheduleController::class, 'toggleStatus'])->name('schedule.toggleStatus');
-
-Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
-
-Route::post('/kirim/email/{id}', [EmailController::class, 'kirimEmail']);
-
-Route::get('/schedule/{id}/edit', [ScheduleController::class, 'edit'])->name('schedule.edit');
-Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
 
 
 

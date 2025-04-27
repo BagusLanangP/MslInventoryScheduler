@@ -18,9 +18,9 @@ class InventoryChecking extends Model
         'tanggal',
         'expired_date',
         'jumlah',
-        'harga',
+        'harga_pokok',
         'total_harga',
-        'satuan',
+        'harga_jual',
         'keterangan',
         'status',
     ];

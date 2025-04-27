@@ -1,9 +1,11 @@
-@extends('layouts.index')
 
-@section('tittle', 'homepage')
+@extends('admin.layouts.app')
+
+@section('title', 'Schedule List')
+
 @section('content')
 
-<div class="content mt-10 p-10 pt-24">
+<div class="content">
     {{-- BUG --}}
     {{-- <div class="mb-4 flex gap-2">
         <button id="show-upcoming" class="bg-green-500 text-white px-4 py-2 rounded-md mt-2">Event yang Akan Datang</button>
@@ -43,22 +45,22 @@
     <table class="table-fixed border border-gray-300 w-full">
         <thead>
             <tr class="bg-blue-500 text-white">
-                <th class="border border-gray-400 px-4 w-[3%] py-2">No</th>
-                <th class="border border-gray-400 px-4 w-[24%] py-2">Nama</th>
+                <th class="border border-gray-400 px-4 w-[4%] py-2">No</th>
+                <th class="border border-gray-400 px-4 w-[23%] py-2">Nama</th>
                 <th class="border border-gray-400 px-4 w-[9%] py-2">Jenis</th>
-                <th class="border border-gray-400 px-4 w-[9%] py-2">Date</th>
+                <th class="border border-gray-400 px-4 w-[9%] py-2">Date <hr> Reminder Date</th>
                 <th class="border border-gray-400 px-4 w-[11%] py-2">Budget</th>
-                <th class="border border-gray-400 px-4 w-[32%] py-2">Catatan</th>
-                <th class="border border-gray-400 px-4 w-[12%] py-2">Action</th>
+                <th class="border border-gray-400 px-4 w-[30%] py-2">Catatan</th>
+                <th class="border border-gray-400 px-4 w-[14%] py-2">Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($data as $schedule)
-                <tr class="odd:bg-white even:bg-gray-100"  data-status="{{ $schedule->status ? 'false' : 'true' }}" >
+                <tr class="odd:bg-white even:bg-gray-100 text-sm"  data-status="{{ $schedule->status ? 'false' : 'true' }}" >
                     <td class="border border-gray-400 px-4 py-2">{{ $loop->iteration }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->name }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->jenisSchedule->nama }}</td>
-                    <td class="border border-gray-400 px-4 py-2">{{ $schedule->reminder_date }}</td>
+                    <td class="border border-gray-400 px-4 py-2"><span class="font-bold">{{ $schedule->date }}</span> <hr> {{ $schedule->reminder_date }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->budget }}</td>
                     <td class="border border-gray-400 px-4 py-2">{{ $schedule->note }}</td>
                     <td class="border border-gray-400 px-4 py-2 ">
@@ -105,7 +107,7 @@
                 Simpan Sebagai Excel
             </button>
         </a>  
-        <a href="/schedule-create">
+        <a href="/admin/schedule-create">
             <button class="bg-blue-600 rounded-md text-white px-4 py-2 mt-4 hover:bg-blue-700 justify-self-end">
                 Buat Schedule
             </button>

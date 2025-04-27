@@ -44,11 +44,13 @@
     <thead>
         <tr class="bg-blue-500 text-white">
             <th class="border border-gray-400 px-4 w-[4%] py-2">No</th>
-            <th class="border border-gray-400 px-4 w-[25%] py-2">Nama</th>
+            <th class="border border-gray-400 px-4 w-[15%] py-2">Nama</th>
             <th class="border border-gray-400 px-4 w-[10%] py-2">Tanggal</th>
             <th class="border border-gray-400 px-4 w-[11%] py-2">Supplier</th>
             <th class="border border-gray-400 px-4 w-[10%] py-2">exp</th>
-            <th class="border border-gray-400 px-4 w-[33%] py-2">Status</th>
+            <th class="border border-gray-400 px-4 w-[5%] py-2">Jml</th>
+            <th class="border border-gray-400 px-4 w-[13%] py-2">Harga Pokok <hr> Harga Jual</th>
+            <th class="border border-gray-400 px-4 w-[25%] py-2">Catatan</th>
             <th class="border border-gray-400 px-4 w-[16%] py-2">Action</th>
         </tr>
     </thead>
@@ -65,6 +67,8 @@
                 <td class="border border-gray-400 px-4 py-2 {{ $isExpSoon ? 'bg-red-500 text-white font-bold' : '' }}">
                     {{ $inventory->expired_date }}
                 </td>
+                <td class="border border-gray-400 px-4 py-2">{{ $inventory->jumlah }}</td>
+                <td class="border border-gray-400 px-4 py-2">{{ $inventory->harga_pokok }} <hr> {{ $inventory->harga_jual }}</td>
                 <td class="border border-gray-400 px-4 py-2">{{ $inventory->keterangan }}</td>
                 <td class="border border-gray-400 px-4 py-2 ">
                     <div class="flex justify-end items-center">

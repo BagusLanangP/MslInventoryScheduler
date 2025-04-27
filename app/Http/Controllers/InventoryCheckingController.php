@@ -60,12 +60,13 @@ class InventoryCheckingController extends Controller
             'tanggal' => 'required|date',
             'expired_date' => 'nullable|date',
             'jumlah' => 'required|integer',
-            'harga' => 'required|integer',
-            'satuan' => 'required|string',
+            'total_harga' => 'required|decimal',
+            'harga_pokok' => 'required|decimal',
+            'harga_jual' => 'required|decimal',
             'keterangan' => 'nullable|string',
         ]);
 
-        $validated['total_harga'] = $validated['jumlah'] * $validated['harga'];
+        // $validated['total_harga'] = $validated['jumlah'] * $validated['harga'];
         $validated['status'] = 'belum_diproses';
 
         InventoryChecking::create($validated);

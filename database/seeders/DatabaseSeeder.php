@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\JenisBarangSeeder;
 use App\Models\SupplierSeeder;
 use App\Models\JenisScheduleSeeder;
+use App\Models\InventoryCheckingSeeder;
+use App\Models\ScheduleSeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -23,6 +25,7 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\UserSeeder::class,
             \Database\Seeders\SupplierSeeder::class,
             \Database\Seeders\ScheduleSeeder::class,
+            \Database\Seeders\InventoryCheckingSeeder::class,
         ]);
         // $this->call([
             

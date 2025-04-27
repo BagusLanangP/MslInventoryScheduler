@@ -60,6 +60,37 @@
         </table>
     </div>
     
+    <div class="bg-white rounded shadow mt-6">
+        <div class="bg-green-500 p-4">
+            <h2 class="text-xl text-white font-semibold">Schedule dalam (7 hari)</h2>
+        </div>
+        <table class="m-4 w-full border-collapse">
+            <thead>
+                <tr>
+                    <th class="border-b-2 p-2 text-left">Nama</th>
+                    <th class="border-b-2 p-2 text-left">Tanggal | Reminder date</th>
+                    <th class="border-b-2 p-2 text-left">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($expiredSoon as $item)
+                    <tr>
+                        <td class="border-b p-2">{{ $item->nama }}</td>
+                        <td class="border-b p-2">{{ \Carbon\Carbon::parse($item->expired_date)->format('d M Y') }}</td>
+                        <td class="border-b p-2">
+                            <a href="" class="text-blue-500 hover:underline ml-2">Perbarui Stok</a>
+                            <a href="" class="text-red-500 hover:underline ml-2">Hapus</a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="3" class="p-2 text-center">Tidak ada schedule dengan waktu terdekat.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    
 
 
     <table class="w-full bg-white shadow-md rounded-lg overflow-hidden mt-6">

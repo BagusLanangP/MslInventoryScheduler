@@ -12,19 +12,18 @@ class ScheduleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $query = Schedule::with(['jenisSchedule']);
-
         
         if ($request->filled('jenis')) {
-            $query->where('jenis_barang_id', $request->jenis); // ✅ Benar
+            $query->where('jenis_schedule_id', $request->jenis); // ✅ Benar
         }
 
         $data = $query->get();
         $jenisSchedule = JenisSchedule::all();
         $dataSchedule = Schedule::all();
-        return view('schedule.index', compact('dataSchedule', 'jenisSchedule'));
+        return view('admin.schedule.index', compact('data', 'dataSchedule', 'jenisSchedule'));
     }
 
     /**
@@ -34,7 +33,7 @@ class ScheduleController extends Controller
     {
         $jenisSchedules = JenisSchedule::all();
         $dataApi = ApiLibur::pluck('name', 'date');
-        return view('schedule.create', compact('dataApi', 'jenisSchedules'));
+        return view('admin.schedule.create', compact('dataApi', 'jenisSchedules'));
     }
 
     /**

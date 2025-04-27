@@ -7,6 +7,7 @@
         <a href="{{ route('admin.create-user') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">User CRUD</a>
         <a href="{{ route('supplier_index') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Supplier CRUD</a>
         <a href="{{ route('inventory_index') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Inventory CRUD</a>
+        <a href="{{ route('schedule.index') }}" class="block py-2 px-4 hover:bg-blue-700 rounded">Schedule CRUD</a>
     </nav>
 </div>
 
