@@ -44,6 +44,16 @@ class ScheduleSeeder extends Seeder
                 'reminder_date' => Carbon::createFromDate(2025, 8, 15),
                 'status' => false,
             ],
+            [
+                'name' => 'Audit Monthly CCTV April 2025',
+                'jenis_schedule_id' => $jenisSchedules['Operasional'] ?? 2,
+                'berulang' => false,
+                'note' => 'To Admin3 | Optimize and Audit CCTV before date ditentukan',
+                'date' => Carbon::createFromDate(2025, 5, 5),
+                'budget' => null,
+                'reminder_date' => Carbon::createFromDate(2025, 5, 4),
+                'status' => false,
+            ],
         ];
 
         foreach ($data as $schedule) {

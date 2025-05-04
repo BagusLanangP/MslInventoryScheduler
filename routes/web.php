@@ -10,9 +10,6 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\InventoryCheckingController;
 
 
-
-
-
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     //dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -57,10 +54,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 Route::get('/', function () {
     return view('index');
 });
-
-
-
-
 Route::get('/fetcholidays', [ApiLiburController::class, 'fetchHolidays']);
 Route::get('/fetch', [ApiLiburController::class, 'index']);
 
@@ -68,21 +61,7 @@ Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.in
 
 Route::get('/schedule-create', [ScheduleController::class, 'create'])->name('schedule.create');
 
-
-// Route::get('/admin/dashboard', function () {
-//     return view('admin.createUser');
-// });
-
-
-
 Route::get('/kirim-email', [EmailController::class, 'kirimEmail']);
-
-
-
-
-
-
-
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

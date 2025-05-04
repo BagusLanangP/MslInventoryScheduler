@@ -73,10 +73,10 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($expiredSoon as $item)
+                @forelse($ScheduleinWeek as $item)
                     <tr>
-                        <td class="border-b p-2">{{ $item->nama }}</td>
-                        <td class="border-b p-2">{{ \Carbon\Carbon::parse($item->expired_date)->format('d M Y') }}</td>
+                        <td class="border-b p-2">{{ $item->name }}</td>
+                        <td class="border-b p-2">{{ \Carbon\Carbon::parse($item->date)->format('d M Y') }}</td>
                         <td class="border-b p-2">
                             <a href="" class="text-blue-500 hover:underline ml-2">Perbarui Stok</a>
                             <a href="" class="text-red-500 hover:underline ml-2">Hapus</a>

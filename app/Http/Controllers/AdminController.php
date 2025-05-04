@@ -18,6 +18,8 @@ class AdminController extends Controller
     public function dashboard()
     {
         $expiredSoon = InventoryChecking::whereDate('expired_date', '<=', now()->addDays(7))->get();
+        // dd($expiredSoon);
+        $ScheduleinWeek = Schedule::whereDate('date', '<=', now()->addDays(7))->get();
         $dataSchedule = Schedule::all();
         $totalSchedule = Schedule::count(); 
         $users = User::all();
@@ -28,7 +30,7 @@ class AdminController extends Controller
         $Inventory = InventoryChecking::count();
         $supplier = Supplier::count(); 
         // $InventoryProb = InventoryChecking::all();
-        return view('admin.dashboard', compact('totalSchedule', 'completedSchedule', 'userCount', 'dataApi', 'users', 'Inventory', 'supplier', 'expiredSoon', 'jenisBarangs' ));
+        return view('admin.dashboard', compact('totalSchedule', 'completedSchedule', 'userCount', 'dataApi', 'users', 'Inventory', 'supplier', 'expiredSoon', 'jenisBarangs', 'ScheduleinWeek'));
     }
 
     public function createUser()
