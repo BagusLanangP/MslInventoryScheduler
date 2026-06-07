@@ -23,6 +23,7 @@ class ScheduleSeeder extends Seeder
                 'budget' => 1500000.00,
                 'reminder_date' => Carbon::now()->addDays(3),
                 'status' => false,
+                'created_by' => 1,
             ],
             [
                 'name' => 'Operasional Mingguan',
@@ -33,6 +34,7 @@ class ScheduleSeeder extends Seeder
                 'budget' => 500000.00,
                 'reminder_date' => Carbon::now()->addDays(6),
                 'status' => false,
+                'created_by' => 1,
             ],
             [
                 'name' => 'Libur Nasional',
@@ -43,6 +45,7 @@ class ScheduleSeeder extends Seeder
                 'budget' => null,
                 'reminder_date' => Carbon::createFromDate(2025, 8, 15),
                 'status' => false,
+                'created_by' => 1,
             ],
             [
                 'name' => 'Audit Monthly CCTV April 2025',
@@ -53,6 +56,7 @@ class ScheduleSeeder extends Seeder
                 'budget' => null,
                 'reminder_date' => Carbon::createFromDate(2025, 5, 4),
                 'status' => false,
+                'created_by' => 1,
             ],
         ];
 

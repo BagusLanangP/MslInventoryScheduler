@@ -19,27 +19,33 @@ class ApiLiburController extends Controller
 
     public function fetchHolidays()
     {
-        // Panggil API hari libur
-        $response = Http::get('https://api-harilibur.vercel.app/api');
-        // if ($response->successful()) {
-        //     $data = $response->json();
-        //     dd($data); // Debug hasilnya
-        // } else {
-        //     dd($response->status(), $response->body()); // Cek error code
-        // }
+        // Panggil API hari libur yang aktif
+        $response = Http::get('https://api-hari-libur.vercel.app/api');
 
-        // Konversi ke array
-        $holidays = $response->json();
+        if (!$response->successful()) {
+            return response()->json(['success' => false, 'error' => 'Gagal mengambil data dari API hari libur.'], 500);
+        }
+
+        // Konversi ke array data
+        $body = $response->json();
+        $holidays = $body['data'] ?? [];
 
         // Simpan ke database
         foreach ($holidays as $holiday) {
             ApiLibur::updateOrCreate(
-                ['date' => $holiday['holiday_date']], // Gunakan tanggal sebagai unique key
-                ['name' => $holiday['holiday_name']],
+                ['date' => $holiday['date']], // Gunakan tanggal sebagai unique key
+                ['name' => $holiday['description']],
             );
         }
 
-        return response()->json(['message' => 'Holidays updated successfully']);
+        // Ambil semua hari libur yang ter-update
+        $allHolidays = ApiLibur::orderBy('date', 'asc')->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Hari libur berhasil disinkronisasi!',
+            'data' => $allHolidays
+        ]);
     }
 
     /**

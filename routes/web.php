@@ -8,15 +8,26 @@ use App\Http\Controllers\EmailController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\InventoryCheckingController;
+use App\Http\Controllers\UserController;
 
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     //dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    // User
-    Route::get('/create-user', [AdminController::class, 'createUser'])->name('admin.create-user');
-    Route::post('/store-user', [AdminController::class, 'storeUser'])->name('admin.store-user');
+    // User Management (restricted to Super Admin only)
+    Route::middleware(['super_admin'])->group(function () {
+        Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+        Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
+        Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+
+        // Compatibility routes for existing links
+        Route::get('/create-user', [UserController::class, 'create'])->name('admin.create-user');
+        Route::post('/store-user', [UserController::class, 'store'])->name('admin.store-user');
+    });
     Route::get('/add-gmail', [AdminController::class, 'addGmail'])->name('admin.add-gmail');
    
     
@@ -25,6 +36,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/inventory-checkings/create', [InventoryCheckingController::class, 'create'])->name('inventory_checkings.create');
     Route::get('/inventory/edit/{id}', [InventoryCheckingController::class, 'edit'])->name('inventory.edit');
     Route::post('/store-inventory', [InventoryCheckingController::class, 'store'])->name('admin.store-inventory');
+    Route::put('/inventory/update/{id}', [InventoryCheckingController::class, 'update'])->name('inventory.update');
     Route::delete('/inventory/delete/{id}', [InventoryCheckingController::class, 'destroy'])->name('inventory.destroy');
 
     // Supplier
@@ -39,20 +51,22 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 
     //Schedule
-    Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
+    Route::get('/schedule', [ScheduleController::class, 'index'])->name('admin.schedule.index');
     Route::get('/schedule-create', [ScheduleController::class, 'create'])->name('schedule.create');
     Route::post('/schedule/store', [ScheduleController::class, 'store'])->name('schedule.store');
     Route::post('/schedule/{id}/toggle-status', [ScheduleController::class, 'toggleStatus'])->name('schedule.toggleStatus');
-    Route::post('/schedule/{id}/toggle-status', [ScheduleController::class, 'toggleStatus'])->name('schedule.toggleStatus');
     Route::delete('/schedule/{id}', [ScheduleController::class, 'destroy'])->name('schedule.destroy');
-    Route::post('/kirim/email/{id}', [EmailController::class, 'kirimEmail']);
+    Route::post('/kirim/email/schedule/{id}', [EmailController::class, 'kirimScheduleEmail'])->name('email.schedule');
+    Route::post('/kirim/email/inventory/{id}', [EmailController::class, 'kirimInventoryEmail'])->name('email.inventory');
     Route::get('/schedule/{id}/edit', [ScheduleController::class, 'edit'])->name('schedule.edit');
     Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
-
+    Route::post('/schedule/{id}/update-date', [ScheduleController::class, 'updateDate'])->name('schedule.updateDate');
 });
 
 Route::get('/', function () {
-    return view('index');
+    $totalSuppliers = \App\Models\Supplier::count();
+    $totalInventory = \App\Models\InventoryChecking::count();
+    return view('index', compact('totalSuppliers', 'totalInventory'));
 });
 Route::get('/fetcholidays', [ApiLiburController::class, 'fetchHolidays']);
 Route::get('/fetch', [ApiLiburController::class, 'index']);

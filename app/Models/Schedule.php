@@ -15,7 +15,24 @@ class Schedule extends Model
         return $this->belongsTo(jenisSchedule::class);
     }
 
-    protected $fillable = ['name', 'date', 'note', 'reminder_date', 'berulang', 'status'];
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    protected $fillable = [
+        'name',
+        'jenis_schedule_id',
+        'berulang',
+        'note',
+        'date',
+        'budget',
+        'reminder_date',
+        'status',
+        'created_by',
+        'completed_at',
+        'inventory_checking_id'
+    ];
 
     // public function customDates(){
     //     return $this->hasMany(CustomDate::class, 'schedule_id', 'id');

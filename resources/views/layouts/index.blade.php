@@ -3,76 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSL | @yield('tittle')</title>
+    <title>MSL Scheduler - @yield('title', 'Welcome')</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-[Poppins]">
-    <nav class="bg-[#00a86b] p-4 px-10 flex justify-between items-center shadow-lg text-white fixed top-0 left-0 w-full z-50">
-            <div>
-              <img src="/img/logo.png" alt="Logo" class="h-10 w-auto">
+<body class="bg-slate-50 text-slate-800 antialiased font-[Plus_Jakarta_Sans]">
+    
+    <!-- Navigation Bar (Light Translucent Emerald) -->
+    <nav class="bg-emerald-600/95 backdrop-blur-md border-b border-emerald-500/20 p-4 px-6 sm:px-10 flex justify-between items-center shadow-md text-white fixed top-0 left-0 w-full z-50">
+        <div class="flex items-center gap-3">
+            <div class="bg-white/10 p-2 rounded-xl border border-white/20">
+                <img src="/img/logo.png" alt="Logo" class="h-6 w-auto brightness-0 invert">
             </div>
-            <button id="menu-toggle" class="md:hidden text-white focus:outline-none">
-                ☰
-            </button>
-            <ul id="menu" class="hidden md:flex space-x-4 font-bold">
-                <li><a href="/" class="hover:underline">Home</a></li>
-                <li><a href="/schedule" class="hover:underline">Schedule</a></li>
-                <li><a href="/admin/dashboard" class="hover:underline">Dashboard</a></li>
-                <li><a href="#" class="hover:underline">Contact</a></li>
-            </ul>
+            <span class="font-bold text-base tracking-tight text-white">MSL Scheduler</span>
+        </div>
+        <button id="menu-toggle" class="md:hidden text-white focus:outline-none p-1.5 hover:bg-emerald-700/50 rounded-lg transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+        <ul id="menu" class="hidden md:flex items-center space-x-6 text-sm font-semibold text-white/95">
+            <li><a href="/" class="hover:text-emerald-200 transition">Home</a></li>
+            <li><a href="/schedule" class="hover:text-emerald-200 transition">Schedule</a></li>
+            <li><a href="/admin/dashboard" class="hover:text-emerald-200 transition">Dashboard</a></li>
+            <li><a href="#" class="hover:text-emerald-200 transition">Contact</a></li>
+        </ul>
     </nav>
-    
 
-    @yield('content')
-
-
-    {{-- <section id="FOOTER "> 
-    <div class="ft-2  bg-black text-white p-5">
-      <hr class="color-white">
-      <div class="row justify-content-center p-5">
-        <div class="col-md-6 p-5">
-          <h3 class="fw-bold ">HARVEST HUB</h3>
-          <p> E-Commerce dan  layanan konsultasi <br>di bidang Pertanian dan Peternakan.</p>
-            
-        </div>
-        <div class="col-md-6 row justify-content-between text-start p-5 ">
-          <div class="col-md-4">
-            <h6>Contact</h6><br> 
-              <ul>
-                <li><h6>Email</h6></li>
-                <li>Facebook</li>
-                <li>Instagram</li>
-              </ul>
-          </div>
-          <div class="col-md-4">
-            <h6>About</h6><br>
-            <ul>
-              <li>Team</li>
-              <li>Shipping</li>
-              <li>Affiliate</li>
-            </ul>
-          </div>
-          <div class="col-md-4">
-            <h6>Info</h6><br>
-            <ul>
-              <li>Privacy Policies</li>
-              <li>Terms & Conditions</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden md:hidden fixed top-[73px] left-0 w-full bg-emerald-600/95 backdrop-blur-lg border-b border-emerald-500/20 z-40 transition-all duration-300">
+        <ul class="flex flex-col p-5 space-y-4 text-sm font-semibold text-white">
+            <li><a href="/" class="hover:text-emerald-200 transition block py-2 border-b border-white/10">Home</a></li>
+            <li><a href="/schedule" class="hover:text-emerald-200 transition block py-2 border-b border-white/10">Schedule</a></li>
+            <li><a href="/admin/dashboard" class="hover:text-emerald-200 transition block py-2 border-b border-white/10">Dashboard</a></li>
+            <li><a href="#" class="hover:text-emerald-200 transition block py-2">Contact</a></li>
+        </ul>
     </div>
-    
-  </section> --}}
 
-  <script>
-        document.getElementById('menu-toggle').addEventListener('click', function() {
-            document.getElementById('menu').classList.toggle('hidden');
+    <!-- Main Content -->
+    <main class="min-h-screen flex flex-col justify-between">
+        <div class="flex-1">
+            @yield('content')
+        </div>
+        
+        <!-- Footer -->
+        <footer class="bg-white/20 backdrop-blur-sm border-t border-slate-200/40 py-6 text-center text-xs text-slate-600">
+            &copy; {{ date('Y') }} MSL Scheduler. All rights reserved.
+        </footer>
+    </main>
+
+    <script>
+        document.getElementById('menu-toggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
         });
-   </script>
 
-    
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuToggle = document.getElementById('menu-toggle');
+            if (mobileMenu && !mobileMenu.contains(e.target) && e.target !== menuToggle) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -6,6 +6,7 @@ use App\Models\Schedule;
 use App\Models\ApiLibur;
 use Illuminate\Http\Request;
 use App\Models\JenisSchedule;
+use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
 {
@@ -14,7 +15,7 @@ class ScheduleController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Schedule::with(['jenisSchedule']);
+        $query = Schedule::with(['jenisSchedule', 'creator']);
         
         if ($request->filled('jenis')) {
             $query->where('jenis_schedule_id', $request->jenis); // ✅ Benar
@@ -23,7 +24,69 @@ class ScheduleController extends Controller
         $data = $query->get();
         $jenisSchedule = JenisSchedule::all();
         $dataSchedule = Schedule::all();
-        return view('admin.schedule.index', compact('data', 'dataSchedule', 'jenisSchedule'));
+
+        // Fetch national holidays to display on the calendar
+        $holidays = ApiLibur::all();
+        
+        $calendarEvents = [];
+        
+        // Map schedules to FullCalendar events
+        foreach ($data as $s) {
+            $calendarEvents[] = [
+                'id' => 'schedule-' . $s->id,
+                'dbId' => $s->id,
+                'title' => $s->name,
+                'start' => $s->date,
+                'end' => $s->date,
+                'type' => 'schedule',
+                'backgroundColor' => $s->status ? '#10b981' : '#4f46e5',
+                'borderColor' => $s->status ? '#059669' : '#4338ca',
+                'textColor' => '#ffffff',
+                'extendedProps' => [
+                    'name' => $s->name,
+                    'category' => $s->jenisSchedule->nama ?? 'Umum',
+                    'date' => \Carbon\Carbon::parse($s->date)->format('d M Y'),
+                    'reminder' => \Carbon\Carbon::parse($s->reminder_date)->format('d M Y'),
+                    'budget' => $s->budget ? 'Rp' . number_format($s->budget, 0, ',', '.') : '-',
+                    'creator' => $s->creator->name ?? 'Sistem',
+                    'status' => $s->status ? 'Selesai' : 'Belum Selesai',
+                    'completed' => $s->completed_at ? \Carbon\Carbon::parse($s->completed_at)->format('d M Y H:i') : '-',
+                    'note' => $s->note ?? '-',
+                    'isEditable' => true
+                ]
+            ];
+        }
+        
+        // Map holidays to FullCalendar events
+        foreach ($holidays as $h) {
+            $calendarEvents[] = [
+                'id' => 'holiday-' . $h->id,
+                'title' => '🎉 ' . $h->name,
+                'start' => $h->date,
+                'end' => $h->date,
+                'type' => 'holiday',
+                'backgroundColor' => '#fef3c7',
+                'borderColor' => '#f59e0b',
+                'textColor' => '#b45309',
+                'extendedProps' => [
+                    'name' => $h->name,
+                    'category' => 'Hari Libur Nasional',
+                    'date' => \Carbon\Carbon::parse($h->date)->format('d M Y'),
+                    'reminder' => '-',
+                    'budget' => '-',
+                    'creator' => 'Sistem (API)',
+                    'status' => 'Selesai (Libur)',
+                    'completed' => '-',
+                    'note' => 'Hari libur nasional resmi disinkronkan dari API Pemerintah.',
+                    'isEditable' => false
+                ]
+            ];
+        }
+
+        if ($request->is('admin/*')) {
+            return view('admin.schedule.index', compact('data', 'dataSchedule', 'jenisSchedule', 'calendarEvents'));
+        }
+        return view('schedule.index', compact('data', 'dataSchedule', 'jenisSchedule', 'calendarEvents'));
     }
 
     /**
@@ -41,28 +104,31 @@ class ScheduleController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         // Validasi input
         $request->validate([
             'name' => 'required|string|max:255',
+            'jenis_schedule_id' => 'required|exists:jenis_schedules,id',
             'date' => 'required|date',
             'note' => 'nullable|string|max:500',
-            'berulang' => 'required|in:0,1', // Ubah validasi agar menerima 0 atau 1
+            'budget' => 'nullable|numeric|min:0',
+            'berulang' => 'required|in:0,1',
             'reminder_date' => 'required|date|after_or_equal:date',
         ]);
 
         // Simpan data ke database
         Schedule::create([
             'name' => $request->name,
+            'jenis_schedule_id' => $request->jenis_schedule_id,
             'date' => $request->date,
             'note' => $request->note,
+            'budget' => $request->budget,
             'berulang' => $request->berulang,
             'reminder_date' => $request->reminder_date,
+            'created_by' => Auth::id(),
         ]);
 
         // Redirect dengan pesan sukses
         return redirect()->back()->with('success', 'Schedule berhasil disimpan!');
-    
     }
 
     // public function toggleStatus($id)
@@ -88,9 +154,10 @@ class ScheduleController extends Controller
     public function edit($id)
     {
         $schedule = Schedule::findOrFail($id);
+        $jenisSchedules = JenisSchedule::all();
         $dataApi = ApiLibur::pluck('name', 'date');
 
-        return view('schedule.create', compact('schedule', 'dataApi'));
+        return view('admin.schedule.create', compact('schedule', 'jenisSchedules', 'dataApi'));
     }
 
 
@@ -119,12 +186,14 @@ class ScheduleController extends Controller
     {
         $schedule = Schedule::findOrFail($id);
         $schedule->status = !$schedule->status; // Toggle status
+        $schedule->completed_at = $schedule->status ? now() : null; // Set completion date
         $schedule->save();
 
         return response()->json([
             'success' => true,
             'status' => $schedule->status,
-            'id' => $schedule->id
+            'id' => $schedule->id,
+            'completed_at' => $schedule->completed_at ? $schedule->completed_at->format('d M Y H:i') : null
         ]);
     }
 
@@ -136,8 +205,10 @@ class ScheduleController extends Controller
         // Validasi input
         $request->validate([
             'name' => 'required|string|max:255',
+            'jenis_schedule_id' => 'required|exists:jenis_schedules,id',
             'date' => 'required|date',
             'note' => 'nullable|string|max:500',
+            'budget' => 'nullable|numeric|min:0',
             'berulang' => 'required|in:0,1',
             'reminder_date' => 'required|date|after_or_equal:date',
         ]);
@@ -145,14 +216,44 @@ class ScheduleController extends Controller
         // Update data
         $schedule->update([
             'name' => $request->name,
+            'jenis_schedule_id' => $request->jenis_schedule_id,
             'date' => $request->date,
             'note' => $request->note,
+            'budget' => $request->budget,
             'berulang' => $request->berulang,
             'reminder_date' => $request->reminder_date,
         ]);
 
         // Redirect ke halaman index dengan pesan sukses
-        return redirect()->route('schedule.index')->with('success', 'Schedule berhasil diperbarui!');
+        return redirect()->route('admin.schedule.index')->with('success', 'Schedule berhasil diperbarui!');
+    }
+
+    /**
+     * Update the date of a schedule (via drag and drop in Calendar view).
+     */
+    public function updateDate(Request $request, $id)
+    {
+        $schedule = Schedule::findOrFail($id);
+
+        $request->validate([
+            'date' => 'required|date',
+        ]);
+
+        $newDate = \Carbon\Carbon::parse($request->date);
+        
+        $schedule->date = $request->date;
+        
+        // Keep reminder_date valid (reminder_date must be after_or_equal to execution date)
+        if (\Carbon\Carbon::parse($schedule->reminder_date)->lt($newDate)) {
+            $schedule->reminder_date = $request->date;
+        }
+
+        $schedule->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tanggal agenda berhasil diperbarui!'
+        ]);
     }
 
 }

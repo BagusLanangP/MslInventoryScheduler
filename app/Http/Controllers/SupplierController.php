@@ -47,7 +47,6 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'nomor_whatsapp' => 'required|string|max:20',
@@ -55,7 +54,9 @@ class SupplierController extends Controller
             'catatan' => 'nullable|string',
             'dari_tanggal' => 'required|date',
             'status_aktif' => 'boolean',
-            'jenis_barang_id' => 'required'
+            'jenis_barang_id' => 'required|exists:jenis_barangs,id',
+            'alamat' => 'nullable|string|max:500',
+            'pic' => 'nullable|string|max:255',
         ]);
         Supplier::create([
             'nama' => $request->nama,
@@ -65,27 +66,28 @@ class SupplierController extends Controller
             'dari_tanggal' => $request->dari_tanggal,
             'status_aktif' => true,
             'jenis_barang_id' => $request->jenis_barang_id,
+            'alamat' => $request->alamat,
+            'pic' => $request->pic,
         ]);
 
-        
-
-        // Supplier::create($validated);
-
-        return redirect()->route('admin.dashboard')->with('success', 'Supplier berhasil ditambahkan');
+        return redirect()->route('supplier_index')->with('success', 'Supplier berhasil ditambahkan');
     }
 
-    public function show(Supplier $supplier)
+    public function show($id)
     {
-        // return view('suppliers.show', compact('supplier'));
+        return redirect()->route('inventory_index', ['supplier' => $id]);
     }
 
-    public function edit(Supplier $supplier)
+    public function edit($id)
     {
-        return view('suppliers.edit', compact('supplier'));
+        $supplier = Supplier::findOrFail($id);
+        $JenisBarangs = JenisBarang::all();
+        return view('admin.createSupplier', compact('supplier', 'JenisBarangs'));
     }
 
-    public function update(Request $request, Supplier $supplier)
+    public function update(Request $request, $id)
     {
+        $supplier = Supplier::findOrFail($id);
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'nomor_whatsapp' => 'required|string|max:20',
@@ -93,26 +95,29 @@ class SupplierController extends Controller
             'catatan' => 'nullable|string',
             'dari_tanggal' => 'required|date',
             'status_aktif' => 'boolean',
-            'jenis_barang' => 'required|string'
+            'jenis_barang_id' => 'required|exists:jenis_barangs,id',
+            'alamat' => 'nullable|string|max:500',
+            'pic' => 'nullable|string|max:255',
         ]);
 
         $supplier->update($validated);
 
-        return redirect()->route('suppliers.show', $supplier)->with('success', 'Supplier berhasil diperbarui');
+        return redirect()->route('supplier_index')->with('success', 'Supplier berhasil diperbarui');
     }
+
     public function toggleStatus($id)
     {
         $supplier = Supplier::findOrFail($id);
-        $supplier->status_aktif = !$supplier->status;
+        $supplier->status_aktif = !$supplier->status_aktif;
         $supplier->save();
 
         return redirect()->back()->with('success', 'Status supplier berhasil diperbarui.');
     }
 
-
-    public function destroy(Supplier $supplier)
+    public function destroy($id)
     {
+        $supplier = Supplier::findOrFail($id);
         $supplier->delete();
-        return redirect()->route('suppliers.index')->with('success', 'Supplier berhasil dihapus');
+        return redirect()->route('supplier_index')->with('success', 'Supplier berhasil dihapus');
     }
 }

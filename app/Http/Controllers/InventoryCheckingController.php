@@ -60,16 +60,18 @@ class InventoryCheckingController extends Controller
             'tanggal' => 'required|date',
             'expired_date' => 'nullable|date',
             'jumlah' => 'required|integer',
-            'total_harga' => 'required|decimal',
-            'harga_pokok' => 'required|decimal',
-            'harga_jual' => 'required|decimal',
+            'total_harga' => 'required|numeric',
+            'harga_pokok' => 'required|numeric',
+            'harga_jual' => 'required|numeric',
             'keterangan' => 'nullable|string',
         ]);
 
-        // $validated['total_harga'] = $validated['jumlah'] * $validated['harga'];
         $validated['status'] = 'belum_diproses';
 
-        InventoryChecking::create($validated);
+        $item = InventoryChecking::create($validated);
+        
+        // Sinkronisasi otomatis ke agenda schedule
+        $this->syncExpirySchedule($item);
 
         return redirect()->route('admin.dashboard')->with('success', 'Data berhasil ditambahkan!');
     }
@@ -80,12 +82,8 @@ class InventoryCheckingController extends Controller
         $item = InventoryChecking::findOrFail($id);
         $jenisBarangs = JenisBarang::all();
         $suppliers = Supplier::all();
-        return view('admin.inventory.edit', compact('item', 'jenisBarangs', 'suppliers'));
+        return view('admin.Inventory.edit', compact('item', 'jenisBarangs', 'suppliers'));
     }
-
-
-
-    
 
     // Update data
     public function update(Request $request, $id)
@@ -99,26 +97,32 @@ class InventoryCheckingController extends Controller
             'tanggal' => 'required|date',
             'expired_date' => 'nullable|date',
             'jumlah' => 'required|integer',
-            'harga' => 'required|integer',
-            'satuan' => 'required|string',
+            'total_harga' => 'required|numeric',
+            'harga_pokok' => 'required|numeric',
+            'harga_jual' => 'required|numeric',
             'keterangan' => 'nullable|string',
-            'status' => 'required|string',
+            'status' => 'required|in:belum_diproses,aktif,ditarik',
         ]);
 
-        $validated['total_harga'] = $validated['jumlah'] * $validated['harga'];
-
         $item->update($validated);
+        
+        // Sinkronisasi otomatis ke agenda schedule
+        $this->syncExpirySchedule($item);
 
-        return redirect()->route('inventory_checkings.index')->with('success', 'Data berhasil diubah!');
+        return redirect()->route('inventory_index')->with('success', 'Data berhasil diubah!');
     }
 
     // Hapus data
     public function destroy($id)
     {
         $item = InventoryChecking::findOrFail($id);
+        
+        // Hapus agenda schedule yang terkait terlebih dahulu
+        \App\Models\Schedule::where('inventory_checking_id', $item->id)->delete();
+        
         $item->delete();
 
-        return redirect()->route('inventory_checkings.index')->with('success', 'Data berhasil dihapus!');
+        return redirect()->route('inventory_index')->with('success', 'Data berhasil dihapus!');
     }
 
     // Tampilkan detail jika dibutuhkan
@@ -126,6 +130,50 @@ class InventoryCheckingController extends Controller
     {
         $item = InventoryChecking::with(['jenisBarang', 'supplier'])->findOrFail($id);
         return view('inventory_checkings.show', compact('item'));
+    }
+
+    // Helper sinkronisasi hari kedaluwarsa ke agenda schedule
+    private function syncExpirySchedule(InventoryChecking $item)
+    {
+        if ($item->expired_date) {
+            // Dapatkan atau buat kategori baru "Kedaluwarsa Barang"
+            $jenisSchedule = \App\Models\JenisSchedule::where('nama', 'Kedaluwarsa Barang')->first();
+            if (!$jenisSchedule) {
+                $jenisSchedule = new \App\Models\JenisSchedule();
+                $jenisSchedule->nama = 'Kedaluwarsa Barang';
+                $jenisSchedule->status_aktif = true;
+                $jenisSchedule->save();
+            }
+
+            $expiry = \Carbon\Carbon::parse($item->expired_date);
+            
+            // Tanggal pengingat (reminder_date) adalah tanggal expired aktual
+            // Tanggal pelaksanaan agenda (date) adalah 30 hari sebelum expired
+            $executionDate = $expiry->copy()->subDays(30);
+            
+            // Amankan agar tanggal pelaksanaan tidak mendahului tanggal masuk barang
+            $entryDate = \Carbon\Carbon::parse($item->tanggal);
+            if ($executionDate->lt($entryDate)) {
+                $executionDate = $entryDate->copy();
+            }
+
+            \App\Models\Schedule::updateOrCreate(
+                ['inventory_checking_id' => $item->id],
+                [
+                    'name' => 'Kedaluwarsa: ' . $item->nama . ' (' . $item->jumlah . ' Unit)',
+                    'jenis_schedule_id' => $jenisSchedule->id,
+                    'date' => $executionDate->toDateString(),
+                    'reminder_date' => $expiry->toDateString(),
+                    'note' => 'Barang ' . $item->nama . ' (Stok: ' . $item->jumlah . ' unit) akan kedaluwarsa pada tanggal ' . $expiry->format('d M Y') . '.',
+                    'budget' => 0,
+                    'berulang' => false,
+                    'created_by' => \Illuminate\Support\Facades\Auth::id() ?? 1,
+                ]
+            );
+        } else {
+            // Jika expired_date kosong/dihapus, hapus schedule terkait
+            \App\Models\Schedule::where('inventory_checking_id', $item->id)->delete();
+        }
     }
 }
 

@@ -6,10 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NotifikasiEmail;
 use App\Models\Schedule;
+use App\Models\InventoryChecking;
 
 class EmailController extends Controller
 {
     public function kirimEmail($id)
+    {
+        return $this->kirimScheduleEmail($id);
+    }
+
+    public function kirimScheduleEmail($id)
     {
         $schedule = Schedule::find($id);
         if (!$schedule) {
@@ -24,11 +30,28 @@ class EmailController extends Controller
             "reminder_date" => $schedule->reminder_date
         ];
     
-
         Mail::to($email)->send(new NotifikasiEmail($data));
 
-          // Simpan pesan sukses dalam session
-         // Simpan pesan sukses dalam session dengan interpolasi string yang benar
-    return redirect()->back()->with('success', "Email berhasil dikirim ke $email");
+        return redirect()->back()->with('success', "Email berhasil dikirim ke $email");
+    }
+
+    public function kirimInventoryEmail($id)
+    {
+        $inventory = InventoryChecking::with(['supplier', 'jenisBarang'])->find($id);
+        if (!$inventory) {
+            return back()->with('error', 'Data tidak ditemukan.');
+        }
+        $email = 'baguslanangpurbhawa@gmail.com';
+    
+        $data = [
+            "name" => $inventory->nama,
+            "catatan" => "Jumlah: " . $inventory->jumlah . ", Harga Pokok: " . $inventory->harga_pokok . ", Harga Jual: " . $inventory->harga_jual . ($inventory->keterangan ? ". Catatan: " . $inventory->keterangan : ""),
+            "date" => $inventory->tanggal,
+            "reminder_date" => $inventory->expired_date ?? '-'
+        ];
+    
+        Mail::to($email)->send(new NotifikasiEmail($data));
+
+        return redirect()->back()->with('success', "Email berhasil dikirim ke $email");
     }
 }

@@ -18,24 +18,113 @@ class AdminController extends Controller
     public function dashboard()
     {
         $expiredSoon = InventoryChecking::whereDate('expired_date', '<=', now()->addDays(7))->get();
-        // dd($expiredSoon);
         $ScheduleinWeek = Schedule::whereDate('date', '<=', now()->addDays(7))->get();
         $dataSchedule = Schedule::all();
         $totalSchedule = Schedule::count(); 
         $users = User::all();
         $jenisBarangs = JenisBarang::count();
-        $completedSchedule = Schedule::where('status', 'completed')->count(); // Menghitung schedule yang selesai
-        $userCount = User::count(); // Menghitung total user
+        
+        // FIX BUG: status is a boolean in database (1 or 0), not a string 'completed'
+        $completedSchedule = Schedule::where('status', true)->count(); 
+        
+        $userCount = User::count(); 
         $dataApi = ApiLibur::pluck('name', 'date');
         $Inventory = InventoryChecking::count();
         $supplier = Supplier::count(); 
-        // $InventoryProb = InventoryChecking::all();
-        return view('admin.dashboard', compact('totalSchedule', 'completedSchedule', 'userCount', 'dataApi', 'users', 'Inventory', 'supplier', 'expiredSoon', 'jenisBarangs', 'ScheduleinWeek'));
-    }
 
-    public function createUser()
-    {
-        return view('admin.createUser');
+        // --- FINANCIAL ANALYTICS CALCULATIONS ---
+        // 1. Calculate Gross Profits from Inventory
+        $inventoryCheckings = InventoryChecking::whereNotNull('tanggal')->get();
+        $monthlyProfits = [];
+        $totalGrossProfit = 0;
+        
+        foreach ($inventoryCheckings as $item) {
+            $profit = (floatval($item->harga_jual) - floatval($item->harga_pokok)) * intval($item->jumlah);
+            $totalGrossProfit += $profit;
+            
+            $carbonDate = Carbon::parse($item->tanggal);
+            $monthKey = $carbonDate->format('Y-m'); // e.g. "2026-06"
+            $monthName = $carbonDate->translatedFormat('F Y'); // e.g. "Juni 2026"
+            
+            if (!isset($monthlyProfits[$monthKey])) {
+                $monthlyProfits[$monthKey] = [
+                    'label' => $monthName,
+                    'total' => 0
+                ];
+            }
+            $monthlyProfits[$monthKey]['total'] += $profit;
+        }
+
+        // 2. Calculate Expenses from Schedule budgets
+        $schedulesWithBudget = Schedule::whereNotNull('budget')->whereNotNull('date')->get();
+        $monthlyBudgets = [];
+        $categoryBudgets = [];
+        $totalExpenses = 0;
+        
+        foreach ($schedulesWithBudget as $s) {
+            $totalExpenses += floatval($s->budget);
+            
+            $carbonDate = Carbon::parse($s->date);
+            $monthKey = $carbonDate->format('Y-m');
+            $monthName = $carbonDate->translatedFormat('F Y');
+            
+            if (!isset($monthlyBudgets[$monthKey])) {
+                $monthlyBudgets[$monthKey] = [
+                    'label' => $monthName,
+                    'total' => 0
+                ];
+            }
+            $monthlyBudgets[$monthKey]['total'] += floatval($s->budget);
+            
+            $categoryName = $s->jenisSchedule->nama ?? 'Umum';
+            if (!isset($categoryBudgets[$categoryName])) {
+                $categoryBudgets[$categoryName] = 0;
+            }
+            $categoryBudgets[$categoryName] += floatval($s->budget);
+        }
+
+        // 3. Merge and Sort chronologically (last 6 months or all months active)
+        $months = array_unique(array_merge(array_keys($monthlyProfits), array_keys($monthlyBudgets)));
+        sort($months);
+        
+        // Limit to last 6 months for chart readability if there are too many months
+        if (count($months) > 6) {
+            $months = array_slice($months, -6);
+        }
+        
+        $chartLabels = [];
+        $chartProfits = [];
+        $chartExpenses = [];
+        
+        foreach ($months as $m) {
+            $carbonDate = Carbon::parse($m . '-01');
+            $chartLabels[] = $carbonDate->translatedFormat('F Y');
+            $chartProfits[] = $monthlyProfits[$m]['total'] ?? 0;
+            $chartExpenses[] = $monthlyBudgets[$m]['total'] ?? 0;
+        }
+        
+        $catLabels = array_keys($categoryBudgets);
+        $catValues = array_values($categoryBudgets);
+
+        return view('admin.dashboard', compact(
+            'totalSchedule', 
+            'completedSchedule', 
+            'userCount', 
+            'dataApi', 
+            'users', 
+            'Inventory', 
+            'supplier', 
+            'expiredSoon', 
+            'jenisBarangs', 
+            'ScheduleinWeek',
+            'totalGrossProfit',
+            'totalExpenses',
+            'chartLabels',
+            'chartProfits',
+            'chartExpenses',
+            'catLabels',
+            'catValues'
+        ));
     }
 
     public function createSupplier()
@@ -47,27 +136,6 @@ class AdminController extends Controller
     public function addGmail()
     {
         return view('admin.addGmail');
-    }
-
-    public function storeUser(Request $request)
-    {
-        // Validasi input
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-        ]);
-
-        // Simpan user ke database
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // Enkripsi password
-            'created_at' => now(), // Menambahkan timestamp
-            'updated_at' => now(),
-        ]);
-
-        return redirect()->route('admin.create-user')->with('success', 'User berhasil ditambahkan!');
     }
 
 

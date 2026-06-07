@@ -16,7 +16,9 @@ class Supplier extends Model
         'catatan',
         'dari_tanggal',
         'status_aktif',
-        'jenis_barang_id'
+        'jenis_barang_id',
+        'alamat',
+        'pic'
     ];
 
     public function jenisBarang()
