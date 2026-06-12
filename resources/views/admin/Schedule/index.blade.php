@@ -20,11 +20,62 @@
         </div>
     </div>
 
+    <!-- Budget Widget Cards -->
+    <div class="mb-6">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Ikhtisar Anggaran Kategori Bulan Ini ({{ \Carbon\Carbon::now()->translatedFormat('F Y') }})</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            @foreach($budgetWidgetData as $widget)
+                <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-sm text-slate-800">{{ $widget['kategori'] }}</span>
+                            @if($widget['limit'] > 0)
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $widget['remaining'] >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                                    {{ number_format($widget['percentage'], 1) }}%
+                                </span>
+                            @else
+                                <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                                    0%
+                                </span>
+                            @endif
+                        </div>
+                        
+                        <!-- Progress bar -->
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 mb-3">
+                            <div class="h-1.5 rounded-full {{ $widget['remaining'] >= 0 ? 'bg-emerald-500' : 'bg-rose-500' }}" style="width: {{ $widget['percentage'] }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex justify-between text-slate-500">
+                            <span>Limit/Plafond:</span>
+                            <span class="font-semibold text-slate-700">Rp{{ number_format($widget['limit'], 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between text-slate-500">
+                            <span>Telah Digunakan:</span>
+                            <span class="font-semibold text-slate-700">Rp{{ number_format($widget['used'], 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between border-t border-slate-100 pt-1.5 mt-1.5">
+                            <span class="font-bold text-slate-600">Sisa Anggaran:</span>
+                            <span class="font-bold {{ $widget['remaining'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                                @if($widget['remaining'] >= 0)
+                                    Rp{{ number_format($widget['remaining'], 0, ',', '.') }}
+                                @else
+                                    -Rp{{ number_format(abs($widget['remaining']), 0, ',', '.') }}
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
     <!-- Filter & Filter Buttons Card -->
     <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm mb-6 space-y-4">
         
         <!-- Filter Form -->
-        <form method="GET" action="{{ route('schedule.index') }}" class="flex flex-col sm:flex-row gap-4 items-end">
+        <form method="GET" action="{{ route('admin.schedule.index') }}" class="flex flex-col sm:flex-row gap-4 items-end">
             <div class="w-full sm:w-64 space-y-1.5">
                 <label for="jenis" class="block text-xs font-semibold text-slate-500 uppercase">Filter Jenis Schedule</label>
                 <select name="jenis" id="jenis" class="w-full border border-slate-200/80 bg-slate-50/50 rounded-xl px-3 py-2 text-sm focus:border-emerald-500 focus:ring focus:ring-emerald-500/10 outline-none transition duration-150">
@@ -40,7 +91,7 @@
                 Filter
             </button>
             @if(request('jenis'))
-                <a href="{{ route('schedule.index') }}" class="w-full sm:w-auto px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl text-center transition duration-150">
+                <a href="{{ route('admin.schedule.index') }}" class="w-full sm:w-auto px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl text-center transition duration-150">
                     Reset
                 </a>
             @endif
@@ -97,13 +148,13 @@
                 <thead class="text-xs uppercase bg-slate-50 text-slate-400 font-semibold border-b border-slate-100">
                     <tr>
                         <th class="px-6 py-4 w-[5%]">No</th>
-                        <th class="px-6 py-4 w-[22%]">Nama Kegiatan</th>
-                        <th class="px-6 py-4 w-[12%]">Kategori</th>
+                        <th class="px-6 py-4 w-[20%]">Nama Kegiatan</th>
+                        <th class="px-6 py-4 w-[10%]">Kategori</th>
                         <th class="px-6 py-4 w-[15%]">Tanggal</th>
-                        <th class="px-6 py-4 w-[12%]">Dibuat Oleh</th>
-                        <th class="px-6 py-4 w-[15%] text-center">Status</th>
-                        <th class="px-6 py-4 w-[10%]">Budget</th>
-                        <th class="px-6 py-4 w-[15%] text-right">Aksi</th>
+                        <th class="px-6 py-4 w-[10%]">Dibuat Oleh</th>
+                        <th class="px-6 py-4 w-[10%] text-center">Status</th>
+                        <th class="px-6 py-4 w-[8%]">Budget</th>
+                        <th class="px-6 py-4 w-[22%] text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="schedule-table-body" class="divide-y divide-slate-100">
@@ -152,7 +203,7 @@
                             <td class="px-6 py-4 font-semibold text-slate-900">
                                 {{ $schedule->budget ? 'Rp' . number_format($schedule->budget, 0, ',', '.') : '-' }}
                             </td>
-                            <td class="px-6 py-4 text-right flex justify-end gap-1.5 items-center">
+                            <td class="px-6 py-4 text-right flex flex-wrap justify-end gap-1.5 items-center">
                                 
                                 <!-- Detail Button -->
                                 <button onclick="showDetailModal(this)"
@@ -165,41 +216,45 @@
                                         data-status="{{ $schedule->status ? 'Selesai' : 'Belum Selesai' }}"
                                         data-completed="{{ $schedule->completed_at ? \Carbon\Carbon::parse($schedule->completed_at)->format('d M Y H:i') : '-' }}"
                                         data-note="{{ $schedule->note ?? '-' }}"
-                                        class="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl transition duration-150 detail-btn"
+                                        class="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-xs font-semibold transition duration-150 detail-btn"
                                         title="Detail Schedule">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4.5 h-4.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
+                                    <span>Detail</span>
                                 </button>
                                 
                                 <!-- Edit Button -->
                                 <a href="{{ route('schedule.edit', $schedule->id) }}" 
-                                   class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl transition duration-150"
+                                   class="flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold transition duration-150"
                                    title="Edit Schedule">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4.5 h-4.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.83 20.062a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                     </svg>
+                                    <span>Edit</span>
                                 </a>
 
                                 <!-- Delete Button -->
                                 <form action="{{ route('schedule.destroy', $schedule->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus schedule ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl transition duration-150" title="Hapus Schedule">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4.5 h-4.5">
+                                    <button type="submit" class="flex items-center gap-1 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-semibold transition duration-150" title="Hapus Schedule">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                         </svg>
+                                        <span>Hapus</span>
                                     </button>
                                 </form>
 
                                 <!-- Email Notifier Button -->
                                 <form action="{{ route('email.schedule', $schedule->id) }}" method="POST" class="inline">
                                     @csrf
-                                    <button type="submit" class="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl transition duration-150" title="Kirim Notifikasi Email">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4.5 h-4.5">
+                                    <button type="submit" class="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg text-xs font-semibold transition duration-150" title="Kirim Notifikasi Email">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                                         </svg>
+                                        <span>Email</span>
                                     </button>
                                 </form>
 

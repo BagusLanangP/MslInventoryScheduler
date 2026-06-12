@@ -12,12 +12,14 @@ class InventoryChecking extends Model
     use HasFactory;
 
     protected $fillable = [
+        'sku',
         'nama',
         'jenis_barang_id',
         'supplier_id',
         'tanggal',
         'expired_date',
         'jumlah',
+        'min_stock',
         'harga_pokok',
         'total_harga',
         'harga_jual',

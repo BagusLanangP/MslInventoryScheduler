@@ -22,6 +22,57 @@
         </div>
     </div>
 
+    <!-- Budget Widget Cards -->
+    <div class="mb-6">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Ikhtisar Anggaran Kategori Bulan Ini ({{ \Carbon\Carbon::now()->translatedFormat('F Y') }})</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            @foreach($budgetWidgetData as $widget)
+                <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-sm text-slate-800">{{ $widget['kategori'] }}</span>
+                            @if($widget['limit'] > 0)
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $widget['remaining'] >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                                    {{ number_format($widget['percentage'], 1) }}%
+                                </span>
+                            @else
+                                <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                                    0%
+                                </span>
+                            @endif
+                        </div>
+                        
+                        <!-- Progress bar -->
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 mb-3">
+                            <div class="h-1.5 rounded-full {{ $widget['remaining'] >= 0 ? 'bg-emerald-500' : 'bg-rose-500' }}" style="width: {{ $widget['percentage'] }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex justify-between text-slate-500">
+                            <span>Limit/Plafond:</span>
+                            <span class="font-semibold text-slate-700">Rp{{ number_format($widget['limit'], 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between text-slate-500">
+                            <span>Telah Digunakan:</span>
+                            <span class="font-semibold text-slate-700">Rp{{ number_format($widget['used'], 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between border-t border-slate-100 pt-1.5 mt-1.5">
+                            <span class="font-bold text-slate-600">Sisa Anggaran:</span>
+                            <span class="font-bold {{ $widget['remaining'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                                @if($widget['remaining'] >= 0)
+                                    Rp{{ number_format($widget['remaining'], 0, ',', '.') }}
+                                @else
+                                    -Rp{{ number_format(abs($widget['remaining']), 0, ',', '.') }}
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
     <!-- Filter & Filter Buttons Card -->
     <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm mb-6 space-y-4">
         

@@ -12,45 +12,33 @@ use Carbon\Carbon;
 
 class InventoryCheckingController extends Controller
 {
-    // Tampilkan semua data
+    // Tampilkan data peringatan inventaris (Dashboard Alerts)
     public function index(Request $request)
     {
-        $query = InventoryChecking::with(['supplier', 'jenisBarang']);
+        // 1. STOK KRITIS: Jumlah di bawah atau sama dengan batas minimal (min_stock)
+        $lowStockItems = InventoryChecking::with(['supplier', 'jenisBarang'])
+            ->whereColumn('jumlah', '<=', 'min_stock')
+            ->get();
 
-        // Filter berdasarkan supplier
-        if ($request->filled('supplier')) {
-            $query->where('supplier_id', $request->supplier);
-        }
+        // 2. MENDEKATI KEDALUWARSA: Tanggal kedaluwarsa dalam 30 hari ke depan, dan masih ada stok (jumlah > 0)
+        $expiringSoonItems = InventoryChecking::with(['supplier', 'jenisBarang'])
+            ->whereNotNull('expired_date')
+            ->where('jumlah', '>', 0)
+            ->where('status', '!=', 'ditarik')
+            ->whereDate('expired_date', '<=', Carbon::now()->addMonth())
+            ->orderBy('expired_date', 'asc')
+            ->get();
 
-        // Filter berdasarkan jenis barang
-        if ($request->filled('jenis')) {
-            $query->where('jenis_barang_id', $request->jenis); // ✅ Benar
-        }
-        
-
-        // Filter expiring
-        if ($request->filter === 'exp-soon') {
-            $query->whereDate('expired_date', '<=', Carbon::now()->addMonth());
-        }
-
-        $data = $query->get();
-
-        // Ambil data untuk dropdown
-        $suppliers = Supplier::all();
-        $jenisBarang = JenisBarang::all();
-        return view('admin.inventory.index', compact('data', 'suppliers', 'jenisBarang'));
+        return view('admin.inventory.index', compact('lowStockItems', 'expiringSoonItems'));
     }
 
-    // Tampilkan form create
+    // Tampilkan form create (Deprecated)
     public function create()
     {
-        $jenisBarangs = JenisBarang::all();
-        $suppliers = Supplier::all();
-        // dd($suppliers);
-        return view('admin.createInventoryChecking', compact('jenisBarangs', 'suppliers'));
+        return redirect()->route('inventory_index')->with('warning', 'Penambahan barang dilakukan secara otomatis melalui sinkronisasi API Kasir POS.');
     }
 
-    // Simpan data baru
+    // Simpan data baru (Deprecated in UI - retained for API compatibility and tests)
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -73,19 +61,16 @@ class InventoryCheckingController extends Controller
         // Sinkronisasi otomatis ke agenda schedule
         $this->syncExpirySchedule($item);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Data berhasil ditambahkan!');
+        return redirect()->route('inventory_index')->with('success', 'Data berhasil ditambahkan!');
     }
 
-    // Edit form
+    // Edit form (Deprecated)
     public function edit($id)
     {
-        $item = InventoryChecking::findOrFail($id);
-        $jenisBarangs = JenisBarang::all();
-        $suppliers = Supplier::all();
-        return view('admin.Inventory.edit', compact('item', 'jenisBarangs', 'suppliers'));
+        return redirect()->route('inventory_index')->with('warning', 'Pembaruan data barang dilakukan secara otomatis melalui sinkronisasi API Kasir POS.');
     }
 
-    // Update data
+    // Update data (Deprecated in UI - retained for API compatibility and tests)
     public function update(Request $request, $id)
     {
         $item = InventoryChecking::findOrFail($id);
@@ -132,10 +117,101 @@ class InventoryCheckingController extends Controller
         return view('inventory_checkings.show', compact('item'));
     }
 
+    // Endpoint Sinkronisasi Stok dari Kasir POS
+    public function apiSyncStocks(Request $request)
+    {
+        $apiToken = $request->header('X-API-TOKEN');
+        $expectedToken = env('CASHIER_API_TOKEN', 'kasir_secret_token');
+
+        if ($apiToken !== $expectedToken) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token otorisasi API kasir tidak valid.'
+            ], 401);
+        }
+
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.sku' => 'required|string',
+            'items.*.nama' => 'required|string',
+            'items.*.kategori' => 'required|string',
+            'items.*.supplier_nama' => 'nullable|string',
+            'items.*.jumlah' => 'required|integer|min:0',
+            'items.*.min_stock' => 'nullable|integer|min:0',
+            'items.*.harga_pokok' => 'required|numeric|min:0',
+            'items.*.harga_jual' => 'required|numeric|min:0',
+            'items.*.expired_date' => 'nullable|date',
+            'items.*.keterangan' => 'nullable|string'
+        ]);
+
+        $syncedCount = 0;
+
+        \DB::transaction(function () use ($request, &$syncedCount) {
+            foreach ($request->items as $itemData) {
+                // 1. Cari atau buat JenisBarang
+                $jenisBarang = JenisBarang::firstOrCreate([
+                    'name' => $itemData['kategori']
+                ]);
+
+                // 2. Cari atau buat Supplier
+                $supplierName = $itemData['supplier_nama'] ?: 'Supplier POS Umum';
+                $supplier = Supplier::firstOrCreate([
+                    'nama' => $supplierName
+                ], [
+                    'nomor_whatsapp' => '081234567890',
+                    'email' => 'supplier@example.com',
+                    'dari_tanggal' => Carbon::now()->toDateString(),
+                    'jenis_barang_id' => $jenisBarang->id,
+                    'status_aktif' => true,
+                    'alamat' => '-',
+                    'pic' => 'POS Sync'
+                ]);
+
+                $minStock = isset($itemData['min_stock']) ? intval($itemData['min_stock']) : 10;
+                $expiredDate = isset($itemData['expired_date']) ? $itemData['expired_date'] : null;
+                $totalHarga = floatval($itemData['harga_pokok']) * intval($itemData['jumlah']);
+
+                $status = 'aktif';
+                if (intval($itemData['jumlah']) === 0) {
+                    $status = 'belum_diproses';
+                }
+
+                // 3. Update atau create item berdasarkan SKU
+                $inventory = InventoryChecking::updateOrCreate(
+                    ['sku' => $itemData['sku']],
+                    [
+                        'nama' => $itemData['nama'],
+                        'jenis_barang_id' => $jenisBarang->id,
+                        'supplier_id' => $supplier->id,
+                        'tanggal' => Carbon::now()->toDateString(),
+                        'expired_date' => $expiredDate,
+                        'jumlah' => intval($itemData['jumlah']),
+                        'min_stock' => $minStock,
+                        'harga_pokok' => floatval($itemData['harga_pokok']),
+                        'total_harga' => $totalHarga,
+                        'harga_jual' => floatval($itemData['harga_jual']),
+                        'keterangan' => $itemData['keterangan'] ?? 'Sync from POS API',
+                        'status' => $status
+                    ]
+                );
+
+                // 4. Sinkronisasi pengingat kedaluwarsa ke agenda schedules
+                $this->syncExpirySchedule($inventory);
+
+                $syncedCount++;
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => $syncedCount . ' data stok barang berhasil disinkronkan!',
+        ], 200);
+    }
+
     // Helper sinkronisasi hari kedaluwarsa ke agenda schedule
     private function syncExpirySchedule(InventoryChecking $item)
     {
-        if ($item->expired_date) {
+        if ($item->expired_date && $item->jumlah > 0 && $item->status !== 'ditarik') {
             // Dapatkan atau buat kategori baru "Kedaluwarsa Barang"
             $jenisSchedule = \App\Models\JenisSchedule::where('nama', 'Kedaluwarsa Barang')->first();
             if (!$jenisSchedule) {
@@ -171,7 +247,7 @@ class InventoryCheckingController extends Controller
                 ]
             );
         } else {
-            // Jika expired_date kosong/dihapus, hapus schedule terkait
+            // Jika expired_date kosong, atau stock habis, atau ditarik, hapus schedule terkait
             \App\Models\Schedule::where('inventory_checking_id', $item->id)->delete();
         }
     }

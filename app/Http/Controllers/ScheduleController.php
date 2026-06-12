@@ -6,6 +6,9 @@ use App\Models\Schedule;
 use App\Models\ApiLibur;
 use Illuminate\Http\Request;
 use App\Models\JenisSchedule;
+use App\Models\MonthlyBudget;
+use App\Models\DailyTransaction;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
@@ -83,10 +86,51 @@ class ScheduleController extends Controller
             ];
         }
 
-        if ($request->is('admin/*')) {
-            return view('admin.schedule.index', compact('data', 'dataSchedule', 'jenisSchedule', 'calendarEvents'));
+        // Calculate current month's budget performance per category
+        $currentMonth = Carbon::now()->format('Y-m');
+        $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
+        $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
+
+        $monthlyBudget = MonthlyBudget::where('periode', $currentMonth)->first();
+        $budgetWidgetData = [];
+
+        foreach ($jenisSchedule as $jenis) {
+            $allocationLimit = 0;
+            if ($monthlyBudget) {
+                $allocation = $monthlyBudget->allocations()->where('jenis_schedule_id', $jenis->id)->first();
+                if ($allocation) {
+                    $allocationLimit = floatval($allocation->nominal_limit);
+                }
+            }
+
+            // Sum schedules budgets
+            $usedScheduleBudget = floatval(Schedule::where('jenis_schedule_id', $jenis->id)
+                ->whereBetween('date', [$startOfMonth, $endOfMonth])
+                ->whereNotNull('budget')
+                ->sum('budget'));
+
+            // Sum daily transactions (expenses)
+            $usedDailyTx = floatval(DailyTransaction::where('tipe', 'pengeluaran')
+                ->where('kategori', $jenis->nama)
+                ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+                ->sum('nominal'));
+
+            $totalUsed = $usedScheduleBudget + $usedDailyTx;
+            $remaining = $allocationLimit - $totalUsed;
+
+            $budgetWidgetData[] = [
+                'kategori' => $jenis->nama,
+                'limit' => $allocationLimit,
+                'used' => $totalUsed,
+                'remaining' => $remaining,
+                'percentage' => $allocationLimit > 0 ? min(($totalUsed / $allocationLimit) * 100, 100) : 0
+            ];
         }
-        return view('schedule.index', compact('data', 'dataSchedule', 'jenisSchedule', 'calendarEvents'));
+
+        if ($request->is('admin/*')) {
+            return view('admin.schedule.index', compact('data', 'dataSchedule', 'jenisSchedule', 'calendarEvents', 'budgetWidgetData'));
+        }
+        return view('schedule.index', compact('data', 'dataSchedule', 'jenisSchedule', 'calendarEvents', 'budgetWidgetData'));
     }
 
     /**

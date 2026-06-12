@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSL Scheduler - @yield('title', 'Welcome')</title>
+    <title>{{ config('app.name') }} - @yield('title', 'Welcome')</title>
+    <link rel="icon" href="{{ asset('img/logo.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ asset('img/logo.png') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -17,10 +19,10 @@
     <!-- Navigation Bar (Light Translucent Emerald) -->
     <nav class="bg-emerald-600/95 backdrop-blur-md border-b border-emerald-500/20 p-4 px-6 sm:px-10 flex justify-between items-center shadow-md text-white fixed top-0 left-0 w-full z-50">
         <div class="flex items-center gap-3">
-            <div class="bg-white/10 p-2 rounded-xl border border-white/20">
-                <img src="/img/logo.png" alt="Logo" class="h-6 w-auto brightness-0 invert">
+            <div class="bg-white p-1 rounded-lg">
+                <img src="{{ asset('img/logo.png') }}" alt="Logo" class="h-6 w-auto">
             </div>
-            <span class="font-bold text-base tracking-tight text-white">MSL Scheduler</span>
+            <span class="font-bold text-base tracking-tight text-white">{{ config('app.name') }}</span>
         </div>
         <button id="menu-toggle" class="md:hidden text-white focus:outline-none p-1.5 hover:bg-emerald-700/50 rounded-lg transition">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +55,7 @@
         
         <!-- Footer -->
         <footer class="bg-white/20 backdrop-blur-sm border-t border-slate-200/40 py-6 text-center text-xs text-slate-600">
-            &copy; {{ date('Y') }} MSL Scheduler. All rights reserved.
+            &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
         </footer>
     </main>
 

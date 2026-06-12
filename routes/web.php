@@ -9,9 +9,25 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\InventoryCheckingController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\FinanceController;
 
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
+    // Finance / Budgeting
+    Route::get('/finance', [FinanceController::class, 'index'])->name('admin.finance.index');
+    Route::get('/finance/export-pdf', [FinanceController::class, 'exportPdf'])->name('admin.finance.exportPdf');
+    
+    // Budgeting Planner
+    Route::get('/finance/budgeting', [FinanceController::class, 'budgeting'])->name('admin.finance.budgeting');
+    Route::post('/finance/budgeting', [FinanceController::class, 'storeBudget'])->name('admin.finance.storeBudget');
+    Route::get('/finance/remaining-budget', [FinanceController::class, 'getRemainingBudget'])->name('admin.finance.remainingBudget');
+    
+    // Daily Transactions Log
+    Route::get('/finance/transactions', [FinanceController::class, 'transactions'])->name('admin.finance.transactions');
+    Route::post('/finance/transactions/store', [FinanceController::class, 'storeTransaction'])->name('admin.finance.storeTransaction');
+    Route::get('/finance/transactions/export', [FinanceController::class, 'exportTransactions'])->name('admin.finance.exportTransactions');
+    Route::post('/finance/transactions/import', [FinanceController::class, 'importTransactions'])->name('admin.finance.importTransactions');
+
     //dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -79,3 +95,7 @@ Route::get('/kirim-email', [EmailController::class, 'kirimEmail']);
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Cashier POS API integration
+Route::post('/api/finance/daily-transactions', [FinanceController::class, 'apiStoreTransaction']);
+Route::post('/api/inventory/sync-stocks', [InventoryCheckingController::class, 'apiSyncStocks']);

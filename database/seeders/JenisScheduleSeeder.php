@@ -11,7 +11,7 @@ class JenisScheduleSeeder extends Seeder
     {
         DB::table('jenis_schedules')->insert([
             [
-                'nama' => 'Pembelian Barang',
+                'nama' => 'Pembelian Barang / Restocking',
                 'status_aktif' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -29,13 +29,7 @@ class JenisScheduleSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'nama' => 'Meeting',
-                'status_aktif' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama' => 'Audit',
+                'nama' => 'Libur',
                 'status_aktif' => true,
                 'created_at' => now(),
                 'updated_at' => now(),

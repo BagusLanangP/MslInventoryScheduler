@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'api/finance/daily-transactions',
+            'api/inventory/sync-stocks',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

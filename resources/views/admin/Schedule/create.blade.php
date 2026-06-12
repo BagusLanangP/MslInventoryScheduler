@@ -10,7 +10,7 @@
                 {{ isset($schedule) ? 'Edit Agenda Schedule' : 'Buat Agenda Schedule Baru' }}
             </h2>
             <p class="text-xs text-slate-500 mt-1">
-                {{ isset($schedule) ? 'Perbarui data agenda operasional Anda.' : 'Tambahkan agenda operasional baru ke sistem MSL Scheduler.' }}
+                {{ isset($schedule) ? 'Perbarui data agenda operasional Anda.' : 'Tambahkan agenda operasional baru ke sistem ' . config('app.name') . '.' }}
             </p>
         </div>
         <div>
@@ -133,6 +133,15 @@
                                        class="block w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-emerald-500 focus:ring focus:ring-emerald-500/10 @error('budget') border-rose-500 focus:border-rose-500 focus:ring-rose-500/10 @enderror">
                             </div>
                             <span id="budget-helper" class="text-xs text-emerald-600 font-semibold mt-1 block h-4"></span>
+                            <div id="budget-alert-info" class="hidden text-xs font-semibold mt-1.5 p-3 bg-slate-50 border border-slate-200/60 rounded-xl flex flex-col gap-1.5">
+                                <span id="budget-remaining-text" class="text-slate-500">Sisa anggaran kategori ini: Rp 0 / Rp 0</span>
+                                <a id="budget-adjust-link" href="#" target="_blank" class="text-indigo-600 hover:text-indigo-800 underline flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    <span>Sesuaikan Rencana Budgeting</span>
+                                </a>
+                            </div>
                             @error('budget')
                                 <p class="text-xs text-rose-500 mt-1 flex items-center gap-1 font-medium">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -502,12 +511,84 @@
             $('#budget-helper').text(formatRupiah(val));
         });
 
+        let remainingBudgetValue = null;
+
+        function checkRemainingBudget() {
+            const dateVal = $('#date').val();
+            const categoryId = $('#jenis_schedule_id').val();
+            const alertInfo = $('#budget-alert-info');
+            const remainingText = $('#budget-remaining-text');
+            const adjustLink = $('#budget-adjust-link');
+            const excludeId = "{{ isset($schedule) ? $schedule->id : '' }}";
+
+            if (dateVal && categoryId) {
+                const period = dateVal.substring(0, 7); // YYYY-MM
+                
+                $.ajax({
+                    url: "{{ route('admin.finance.remainingBudget') }}",
+                    type: 'GET',
+                    data: {
+                        periode: period,
+                        category_id: categoryId,
+                        exclude_id: excludeId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            remainingBudgetValue = response.remaining;
+                            
+                            remainingText.text('Sisa anggaran kategori ini (' + period + '): Rp ' + response.remaining.toLocaleString('id-ID') + ' / Rp ' + response.limit.toLocaleString('id-ID'));
+                            alertInfo.removeClass('hidden');
+
+                            adjustLink.attr('href', '/admin/finance/budgeting?periode=' + period);
+                            if (response.limit > 0) {
+                                adjustLink.removeClass('hidden');
+                            } else {
+                                adjustLink.addClass('hidden');
+                            }
+                            
+                            validateBudgetAmount();
+                        }
+                    },
+                    error: function() {
+                        alertInfo.addClass('hidden');
+                        remainingBudgetValue = null;
+                    }
+                });
+            } else {
+                alertInfo.addClass('hidden');
+                remainingBudgetValue = null;
+            }
+        }
+
+        function validateBudgetAmount() {
+            const budgetVal = parseFloat($('#budget').val()) || 0;
+            const remainingText = $('#budget-remaining-text');
+            const budgetInput = $('#budget');
+
+            if (remainingBudgetValue !== null) {
+                if (budgetVal > remainingBudgetValue) {
+                    remainingText.removeClass('text-slate-500 text-emerald-600').addClass('text-rose-600 font-bold');
+                    budgetInput.addClass('border-rose-400 focus:border-rose-500 focus:ring-rose-500/10').removeClass('border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/10');
+                } else {
+                    remainingText.removeClass('text-rose-600 font-bold').addClass('text-emerald-600');
+                    budgetInput.removeClass('border-rose-400 focus:border-rose-500 focus:ring-rose-500/10').addClass('border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/10');
+                }
+            } else {
+                remainingText.removeClass('text-rose-600 text-emerald-600 font-bold').addClass('text-slate-500');
+                budgetInput.removeClass('border-rose-400 focus:border-rose-500 focus:ring-rose-500/10').addClass('border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/10');
+            }
+        }
+
+        $('#date, #jenis_schedule_id').on('change input', checkRemainingBudget);
+        $('#budget').on('input', validateBudgetAmount);
+
         // Initialize helper on load (for edit views)
         $(document).ready(function() {
             if ($('#budget').val()) {
                 $('#budget-helper').text(formatRupiah($('#budget').val()));
             }
             checkDateConstraint();
+            checkRemainingBudget();
         });
     </script>
 @endsection

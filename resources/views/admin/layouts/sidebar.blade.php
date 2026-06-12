@@ -27,6 +27,59 @@
             <span>Dashboard</span>
         </a>
 
+        <!-- Kelola Keuangan Expandable Parent -->
+        <div class="space-y-1">
+            <button onclick="toggleFinanceSubmenu()" 
+               class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.finance*') ? 'text-white bg-slate-800' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Kelola Keuangan</span>
+                </div>
+                <svg id="finance-chevron" class="w-4 h-4 transform transition-transform duration-200 {{ request()->routeIs('admin.finance*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+            
+            <div id="finance-submenu" class="pl-4 space-y-1.5 transition-all duration-300 {{ request()->routeIs('admin.finance*') ? '' : 'hidden' }}">
+                <!-- Sub 1: Analisis & Ringkasan -->
+                <a href="{{ route('admin.finance.index') }}" 
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 {{ request()->routeIs('admin.finance.index') ? 'text-emerald-400 bg-white/5' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.finance.index') ? 'bg-emerald-400' : 'bg-slate-600' }}"></span>
+                    <span>Analisis & Ringkasan</span>
+                </a>
+                
+                <!-- Sub 2: Rencana Budgeting -->
+                <a href="{{ route('admin.finance.budgeting') }}" 
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 {{ request()->routeIs('admin.finance.budgeting') ? 'text-emerald-400 bg-white/5' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.finance.budgeting') ? 'bg-emerald-400' : 'bg-slate-600' }}"></span>
+                    <span>Rencana Budgeting</span>
+                </a>
+                
+                <!-- Sub 3: Transaksi Harian -->
+                <a href="{{ route('admin.finance.transactions') }}" 
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 {{ request()->routeIs('admin.finance.transactions') ? 'text-emerald-400 bg-white/5' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.finance.transactions') ? 'bg-emerald-400' : 'bg-slate-600' }}"></span>
+                    <span>Transaksi Harian</span>
+                </a>
+            </div>
+        </div>
+
+        <script>
+            function toggleFinanceSubmenu() {
+                const submenu = document.getElementById('finance-submenu');
+                const chevron = document.getElementById('finance-chevron');
+                if (submenu.classList.contains('hidden')) {
+                    submenu.classList.remove('hidden');
+                    chevron.classList.add('rotate-90');
+                } else {
+                    submenu.classList.add('hidden');
+                    chevron.classList.remove('rotate-90');
+                }
+            }
+        </script>
+
         @if(Auth::user() && Auth::user()->role === 'admin')
         <!-- User Management Link (Super Admin only) -->
         <a href="{{ route('admin.users.index') }}" 
@@ -47,13 +100,13 @@
             <span>Supplier CRUD</span>
         </a>
 
-        <!-- Inventory CRUD Link -->
+        <!-- Peringatan Inventaris Link -->
         <a href="{{ route('inventory_index') }}" 
-           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('inventory_index') || request()->routeIs('inventory_checkings.create') || request()->routeIs('inventory.edit') ? 'bg-emerald-500/10 text-emerald-400 border-l-4 border-emerald-500 pl-3' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+           class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('inventory_index') ? 'bg-emerald-500/10 text-emerald-400 border-l-4 border-emerald-500 pl-3' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 11m8 4V5M4 11v10l8 4" />
             </svg>
-            <span>Inventory CRUD</span>
+            <span>Peringatan Inventaris</span>
         </a>
 
         <!-- Schedule CRUD Link -->

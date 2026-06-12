@@ -24,8 +24,11 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\JenisBarangSeeder::class,
             \Database\Seeders\UserSeeder::class,
             \Database\Seeders\SupplierSeeder::class,
-            \Database\Seeders\ScheduleSeeder::class,
             \Database\Seeders\InventoryCheckingSeeder::class,
+            \Database\Seeders\ScheduleSeeder::class,
+            \Database\Seeders\ApiLiburSeeder::class,
+            \Database\Seeders\DailyTransactionSeeder::class,
+            \Database\Seeders\MonthlyBudgetSeeder::class,
         ]);
         // $this->call([
             

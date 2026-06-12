@@ -114,47 +114,61 @@
         </div>
 
         <!-- Financial Widgets Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Saldo Kas Utama Card -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-sm border border-slate-700 relative overflow-hidden flex items-center gap-4">
+                <div class="absolute -right-6 -bottom-6 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl pointer-events-none"></div>
+                <div class="p-3 bg-emerald-500/20 text-emerald-400 rounded-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Saldo Kas Utama</p>
+                    <h4 class="text-lg font-bold text-white mt-0.5 truncate">Rp{{ number_format($totalCashPool, 0, ',', '.') }}</h4>
+                </div>
+            </div>
+
             <!-- Profits Card -->
-            <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center gap-4">
-                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+            <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center gap-4 group hover:border-emerald-100 transition-colors">
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 16v1M10 11h2m0 0h2m-4 1a3 3 0 013 3M12 11a3 3 0 00-3-3" />
                     </svg>
                 </div>
-                <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Perkiraan Untung Kotor</p>
-                    <h4 class="text-lg font-bold text-slate-900 mt-0.5">Rp{{ number_format($totalGrossProfit, 0, ',', '.') }}</h4>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Untung Bulanan</p>
+                    <h4 class="text-lg font-bold text-slate-900 mt-0.5 truncate">Rp{{ number_format($totalGrossProfit, 0, ',', '.') }}</h4>
                 </div>
             </div>
 
             <!-- Expenses Card -->
-            <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center gap-4">
-                <div class="p-3 bg-rose-50 text-rose-600 rounded-xl">
+            <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center gap-4 group hover:border-rose-100 transition-colors">
+                <div class="p-3 bg-rose-50 text-rose-600 rounded-xl group-hover:scale-110 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
-                <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Anggaran Terpakai</p>
-                    <h4 class="text-lg font-bold text-slate-900 mt-0.5">Rp{{ number_format($totalExpenses, 0, ',', '.') }}</h4>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Beban Anggaran</p>
+                    <h4 class="text-lg font-bold text-slate-900 mt-0.5 truncate">Rp{{ number_format($totalExpenses, 0, ',', '.') }}</h4>
                 </div>
             </div>
 
             <!-- Net Margin Card -->
-            <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center gap-4">
+            <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center gap-4 group hover:border-blue-100 transition-colors">
                 @php
                     $netMargin = $totalGrossProfit - $totalExpenses;
                     $isPositive = $netMargin >= 0;
                 @endphp
-                <div class="p-3 rounded-xl {{ $isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                <div class="p-3 rounded-xl group-hover:scale-110 transition-transform {{ $isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                 </div>
-                <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sisa Saldo Operasional</p>
-                    <h4 class="text-lg font-bold mt-0.5 {{ $isPositive ? 'text-emerald-600' : 'text-rose-600' }}">
+                <div class="overflow-hidden">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Keuntungan Bersih</p>
+                    <h4 class="text-lg font-bold mt-0.5 truncate {{ $isPositive ? 'text-emerald-600' : 'text-rose-600' }}">
                         Rp{{ number_format($netMargin, 0, ',', '.') }}
                     </h4>
                 </div>
@@ -360,29 +374,42 @@
             const trendLabels = @json($chartLabels);
             const profitData = @json($chartProfits);
             const expenseData = @json($chartExpenses);
-
+            const netMarginData = @json($chartNetMargins);
+ 
             new Chart(trendCtx, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: trendLabels,
                     datasets: [
                         {
+                            label: 'Keuntungan Bersih',
+                            data: netMarginData,
+                            backgroundColor: 'rgba(79, 70, 229, 0.15)', // indigo-600
+                            borderColor: 'rgb(79, 70, 229)',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: 'rgb(79, 70, 229)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
                             label: 'Keuntungan Kotor',
                             data: profitData,
-                            backgroundColor: 'rgba(16, 185, 129, 0.85)', // emerald-500
+                            backgroundColor: 'rgba(16, 185, 129, 0.12)', // emerald-500
                             borderColor: 'rgb(16, 185, 129)',
-                            borderWidth: 1.5,
-                            borderRadius: 6,
-                            barPercentage: 0.6
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgb(16, 185, 129)',
+                            fill: true,
+                            tension: 0.4
                         },
                         {
                             label: 'Pengeluaran Anggaran',
                             data: expenseData,
-                            backgroundColor: 'rgba(244, 63, 94, 0.85)', // rose-500
+                            backgroundColor: 'rgba(244, 63, 94, 0.12)', // rose-500
                             borderColor: 'rgb(244, 63, 94)',
-                            borderWidth: 1.5,
-                            borderRadius: 6,
-                            barPercentage: 0.6
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgb(244, 63, 94)',
+                            fill: true,
+                            tension: 0.4
                         }
                     ]
                 },

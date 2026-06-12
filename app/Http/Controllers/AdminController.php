@@ -33,76 +33,108 @@ class AdminController extends Controller
         $supplier = Supplier::count(); 
 
         // --- FINANCIAL ANALYTICS CALCULATIONS ---
-        // 1. Calculate Gross Profits from Inventory
-        $inventoryCheckings = InventoryChecking::whereNotNull('tanggal')->get();
-        $monthlyProfits = [];
+        $targetDate = Carbon::now();
+        $startOfMonth = $targetDate->copy()->startOfMonth()->toDateString();
+        $endOfMonth = $targetDate->copy()->endOfMonth()->toDateString();
+
+        // 1. Current Month's Gross Profit (Income)
         $totalGrossProfit = 0;
+        $itemsInMonth = InventoryChecking::where('status', 'aktif')
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->get();
+        foreach ($itemsInMonth as $item) {
+            $totalGrossProfit += (floatval($item->harga_jual) - floatval($item->harga_pokok)) * intval($item->jumlah);
+        }
+        $totalGrossProfit += floatval(\App\Models\DailyTransaction::where('tipe', 'pemasukan')
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->sum('nominal'));
+
+        // 2. Current Month's Expense
+        $totalExpenses = floatval(Schedule::whereNotNull('budget')
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->sum('budget'));
+        $totalExpenses += floatval(\App\Models\DailyTransaction::where('tipe', 'pengeluaran')
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->sum('nominal'));
+
+        // 3. All-time Cash Pool (starting with 1,000,000,000)
+        $allTimeProfit = 0;
+        foreach (InventoryChecking::where('status', 'aktif')->get() as $item) {
+            $allTimeProfit += (floatval($item->harga_jual) - floatval($item->harga_pokok)) * intval($item->jumlah);
+        }
+        $allTimeProfit += floatval(\App\Models\DailyTransaction::where('tipe', 'pemasukan')->sum('nominal'));
+
+        $allTimeExpense = floatval(Schedule::whereNotNull('budget')->sum('budget'));
+        $allTimeExpense += floatval(\App\Models\DailyTransaction::where('tipe', 'pengeluaran')->sum('nominal'));
+
+        $totalCashPool = max(1000000000 + $allTimeProfit - $allTimeExpense, 0);
+
+        // 4. Last 6 Months Trend (Income, Expense, Net Margin)
+        $chartLabels = [];
+        $chartProfits = [];
+        $chartExpenses = [];
+        $chartNetMargins = [];
         
-        foreach ($inventoryCheckings as $item) {
-            $profit = (floatval($item->harga_jual) - floatval($item->harga_pokok)) * intval($item->jumlah);
-            $totalGrossProfit += $profit;
-            
-            $carbonDate = Carbon::parse($item->tanggal);
-            $monthKey = $carbonDate->format('Y-m'); // e.g. "2026-06"
-            $monthName = $carbonDate->translatedFormat('F Y'); // e.g. "Juni 2026"
-            
-            if (!isset($monthlyProfits[$monthKey])) {
-                $monthlyProfits[$monthKey] = [
-                    'label' => $monthName,
-                    'total' => 0
-                ];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthDate = $targetDate->copy()->subMonths($i);
+            $mLabel = $monthDate->translatedFormat('M Y');
+            $startM = $monthDate->copy()->startOfMonth()->toDateString();
+            $endM = $monthDate->copy()->endOfMonth()->toDateString();
+
+            // Pemasukan item checking
+            $itemsM = InventoryChecking::where('status', 'aktif')
+                ->whereBetween('tanggal', [$startM, $endM])
+                ->get();
+            $profitM = 0;
+            foreach ($itemsM as $item) {
+                $profitM += (floatval($item->harga_jual) - floatval($item->harga_pokok)) * intval($item->jumlah);
             }
-            $monthlyProfits[$monthKey]['total'] += $profit;
+
+            // Pemasukan daily transactions
+            $profitM += floatval(\App\Models\DailyTransaction::where('tipe', 'pemasukan')
+                ->whereBetween('tanggal', [$startM, $endM])
+                ->sum('nominal'));
+
+            // Pengeluaran schedule
+            $expenseM = floatval(Schedule::whereNotNull('budget')
+                ->whereBetween('date', [$startM, $endM])
+                ->sum('budget'));
+
+            // Pengeluaran daily transactions
+            $expenseM += floatval(\App\Models\DailyTransaction::where('tipe', 'pengeluaran')
+                ->whereBetween('tanggal', [$startM, $endM])
+                ->sum('nominal'));
+
+            $netM = $profitM - $expenseM;
+
+            $chartLabels[] = $mLabel;
+            $chartProfits[] = $profitM;
+            $chartExpenses[] = $expenseM;
+            $chartNetMargins[] = $netM;
         }
 
-        // 2. Calculate Expenses from Schedule budgets
-        $schedulesWithBudget = Schedule::whereNotNull('budget')->whereNotNull('date')->get();
-        $monthlyBudgets = [];
+        // 5. Category budgets for the current month
         $categoryBudgets = [];
-        $totalExpenses = 0;
-        
+        $schedulesWithBudget = Schedule::whereNotNull('budget')
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->get();
         foreach ($schedulesWithBudget as $s) {
-            $totalExpenses += floatval($s->budget);
-            
-            $carbonDate = Carbon::parse($s->date);
-            $monthKey = $carbonDate->format('Y-m');
-            $monthName = $carbonDate->translatedFormat('F Y');
-            
-            if (!isset($monthlyBudgets[$monthKey])) {
-                $monthlyBudgets[$monthKey] = [
-                    'label' => $monthName,
-                    'total' => 0
-                ];
-            }
-            $monthlyBudgets[$monthKey]['total'] += floatval($s->budget);
-            
             $categoryName = $s->jenisSchedule->nama ?? 'Umum';
             if (!isset($categoryBudgets[$categoryName])) {
                 $categoryBudgets[$categoryName] = 0;
             }
             $categoryBudgets[$categoryName] += floatval($s->budget);
         }
-
-        // 3. Merge and Sort chronologically (last 6 months or all months active)
-        $months = array_unique(array_merge(array_keys($monthlyProfits), array_keys($monthlyBudgets)));
-        sort($months);
-        
-        // Limit to last 6 months for chart readability if there are too many months
-        if (count($months) > 6) {
-            $months = array_slice($months, -6);
+        $txInMonth = \App\Models\DailyTransaction::where('tipe', 'pengeluaran')
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->get();
+        foreach ($txInMonth as $tx) {
+            $categoryName = $tx->kategori;
+            if (!isset($categoryBudgets[$categoryName])) {
+                $categoryBudgets[$categoryName] = 0;
+            }
+            $categoryBudgets[$categoryName] += floatval($tx->nominal);
         }
-        
-        $chartLabels = [];
-        $chartProfits = [];
-        $chartExpenses = [];
-        
-        foreach ($months as $m) {
-            $carbonDate = Carbon::parse($m . '-01');
-            $chartLabels[] = $carbonDate->translatedFormat('F Y');
-            $chartProfits[] = $monthlyProfits[$m]['total'] ?? 0;
-            $chartExpenses[] = $monthlyBudgets[$m]['total'] ?? 0;
-        }
-        
         $catLabels = array_keys($categoryBudgets);
         $catValues = array_values($categoryBudgets);
 
@@ -119,9 +151,11 @@ class AdminController extends Controller
             'ScheduleinWeek',
             'totalGrossProfit',
             'totalExpenses',
+            'totalCashPool',
             'chartLabels',
             'chartProfits',
             'chartExpenses',
+            'chartNetMargins',
             'catLabels',
             'catValues'
         ));
