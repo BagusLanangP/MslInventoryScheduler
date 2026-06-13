@@ -10,6 +10,9 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\InventoryCheckingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\PayrollController;
 
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
@@ -77,6 +80,39 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/schedule/{id}/edit', [ScheduleController::class, 'edit'])->name('schedule.edit');
     Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
     Route::post('/schedule/{id}/update-date', [ScheduleController::class, 'updateDate'])->name('schedule.updateDate');
+
+    // HRM & Payroll
+    Route::prefix('hrm')->group(function () {
+        if (!env('HRM_ENABLED', false)) {
+            Route::any('/attendance', function() { return view('admin.hrm.development'); })->name('admin.attendance.index');
+            Route::any('/employees', function() { return view('admin.hrm.development'); })->name('admin.employees.index');
+            Route::any('/payroll', function() { return view('admin.hrm.development'); })->name('admin.payroll.index');
+            Route::any('{any}', function() { return view('admin.hrm.development'); })->where('any', '.*');
+        } else {
+            // Attendance - accessible to staff & admin
+            Route::get('/attendance', [AttendanceController::class, 'index'])->name('admin.attendance.index');
+            Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('admin.attendance.checkIn');
+            Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])->name('admin.attendance.checkOut');
+
+            // Employees & Payroll - super admin only
+            Route::middleware(['super_admin'])->group(function () {
+                // Employees CRUD
+                Route::get('/employees', [EmployeeController::class, 'index'])->name('admin.employees.index');
+                Route::get('/employees/create', [EmployeeController::class, 'create'])->name('admin.employees.create');
+                Route::post('/employees', [EmployeeController::class, 'store'])->name('admin.employees.store');
+                Route::get('/employees/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
+                Route::put('/employees/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
+                Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
+
+                // Payroll CRUD & Actions
+                Route::get('/payroll', [PayrollController::class, 'index'])->name('admin.payroll.index');
+                Route::post('/payroll/generate', [PayrollController::class, 'generate'])->name('admin.payroll.generate');
+                Route::put('/payroll/{id}/update-details', [PayrollController::class, 'updateDetails'])->name('admin.payroll.updateDetails');
+                Route::post('/payroll/{id}/pay', [PayrollController::class, 'pay'])->name('admin.payroll.pay');
+                Route::delete('/payroll/{id}', [PayrollController::class, 'destroy'])->name('admin.payroll.destroy');
+            });
+        }
+    });
 });
 
 Route::get('/', function () {

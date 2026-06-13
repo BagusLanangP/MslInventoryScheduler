@@ -24,7 +24,7 @@ class ScheduleController extends Controller
             $query->where('jenis_schedule_id', $request->jenis); // ✅ Benar
         }
 
-        $data = $query->get();
+        $data = $query->orderBy('status', 'asc')->orderBy('date', 'asc')->get();
         $jenisSchedule = JenisSchedule::all();
         $dataSchedule = Schedule::all();
 

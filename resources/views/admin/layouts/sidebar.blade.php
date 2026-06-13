@@ -91,6 +91,58 @@
         </a>
         @endif
 
+        <!-- Kepegawaian & Gaji (HRM & Payroll) Expandable Parent -->
+        <div class="space-y-1">
+            <button onclick="toggleHrmSubmenu()" 
+               class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.employees*') || request()->routeIs('admin.attendance*') || request()->routeIs('admin.payroll*') ? 'text-white bg-slate-800' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Kepegawaian & Gaji (Dev)</span>
+                </div>
+                <svg id="hrm-chevron" class="w-4 h-4 transform transition-transform duration-200 {{ request()->routeIs('admin.employees*') || request()->routeIs('admin.attendance*') || request()->routeIs('admin.payroll*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+            
+            <div id="hrm-submenu" class="pl-4 space-y-1.5 transition-all duration-300 {{ request()->routeIs('admin.employees*') || request()->routeIs('admin.attendance*') || request()->routeIs('admin.payroll*') ? '' : 'hidden' }}">
+                <a href="{{ route('admin.attendance.index') }}" 
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 {{ request()->routeIs('admin.attendance*') ? 'text-emerald-400 bg-white/5' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.attendance*') ? 'bg-emerald-400' : 'bg-slate-600' }}"></span>
+                    <span>Absensi Kehadiran</span>
+                </a>
+                
+                @if(Auth::user() && Auth::user()->role === 'admin')
+                    <a href="{{ route('admin.employees.index') }}" 
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 {{ request()->routeIs('admin.employees*') ? 'text-emerald-400 bg-white/5' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.employees*') ? 'bg-emerald-400' : 'bg-slate-600' }}"></span>
+                        <span>Data Karyawan</span>
+                    </a>
+                    
+                    <a href="{{ route('admin.payroll.index') }}" 
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 {{ request()->routeIs('admin.payroll*') ? 'text-emerald-400 bg-white/5' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.payroll*') ? 'bg-emerald-400' : 'bg-slate-600' }}"></span>
+                        <span>Penggajian (Payroll)</span>
+                    </a>
+                @endif
+            </div>
+        </div>
+
+        <script>
+            function toggleHrmSubmenu() {
+                const submenu = document.getElementById('hrm-submenu');
+                const chevron = document.getElementById('hrm-chevron');
+                if (submenu.classList.contains('hidden')) {
+                    submenu.classList.remove('hidden');
+                    chevron.classList.add('rotate-90');
+                } else {
+                    submenu.classList.add('hidden');
+                    chevron.classList.remove('rotate-90');
+                }
+            }
+        </script>
+
         <!-- Supplier CRUD Link -->
         <a href="{{ route('supplier_index') }}" 
            class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('supplier_index') || request()->routeIs('admin.create-supplier') || request()->routeIs('supplier.edit') || request()->routeIs('supplier.show') ? 'bg-emerald-500/10 text-emerald-400 border-l-4 border-emerald-500 pl-3' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">

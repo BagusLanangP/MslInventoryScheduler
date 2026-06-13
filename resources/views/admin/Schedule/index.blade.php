@@ -533,7 +533,7 @@
                     const newDate = info.event.start.toISOString().split('T')[0];
                     
                     $.ajax({
-                        url: `/schedule/${dbId}/update-date`,
+                        url: `/admin/schedule/${dbId}/update-date`,
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
@@ -569,7 +569,7 @@
 
         function toggleStatus(id) {
             $.ajax({
-                url: `/schedule/${id}/toggle-status`,
+                url: `/admin/schedule/${id}/toggle-status`,
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}"

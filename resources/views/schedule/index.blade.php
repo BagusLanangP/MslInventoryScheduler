@@ -166,10 +166,19 @@
                             <td class="px-6 py-4 font-semibold text-slate-400">{{ $loop->iteration }}</td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
-                                    <input type="checkbox" 
-                                           onchange="toggleStatus({{ $schedule->id }})"
-                                           class="w-5 h-5 text-emerald-600 border-slate-300 rounded-xl focus:ring-emerald-500/20 cursor-pointer"
-                                           {{ $schedule->status ? 'checked' : '' }}>
+                                    @if($schedule->status)
+                                        <span class="text-emerald-500" title="Selesai">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </span>
+                                    @else
+                                        <span class="text-slate-300" title="Belum Selesai">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                                <circle cx="12" cy="12" r="9" />
+                                            </svg>
+                                        </span>
+                                    @endif
                                     <span class="font-bold text-slate-900 {{ $schedule->status ? 'line-through text-slate-400' : '' }}">{{ $schedule->name }}</span>
                                 </div>
                             </td>
@@ -417,37 +426,6 @@
         calendar.render();
     }
 
-    function toggleStatus(id) {
-        $.ajax({
-            url: `/schedule/${id}/toggle-status`,
-            type: "POST",
-            data: {
-                _token: "{{ csrf_token() }}"
-            },
-            success: function(response) {
-                if (response.success) {
-                    let row = $("#row-" + id);
-                    let textSpan = row.find('span.font-bold');
-
-                    if (response.status) {
-                        row.fadeOut(300, function() {
-                            $(this).appendTo("#schedule-table-body").fadeIn()
-                                   .addClass("bg-slate-50/70 text-slate-400 opacity-80");
-                            textSpan.addClass("line-through text-slate-400");
-                            $(this).attr('data-status', 'true');
-                        });
-                    } else {
-                        row.fadeOut(300, function() {
-                            $(this).prependTo("#schedule-table-body").fadeIn()
-                                   .removeClass("bg-slate-50/70 text-slate-400 opacity-80");
-                            textSpan.removeClass("line-through text-slate-400");
-                            $(this).attr('data-status', 'false');
-                        });
-                    }
-                }
-            }
-        });
-    }
 
     const showUpcomingBtn = document.getElementById('show-upcoming');
     if (showUpcomingBtn) {
